@@ -6,11 +6,6 @@
     <title>Sistem Gaji & Syif Pro</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Firebase Compat CDN (Pilihan: Digunakan jika ada konfigurasi) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
         /* Sembunyikan scrollbar untuk paparan kemas */
@@ -22,32 +17,7 @@
 </head>
 <body class="bg-[#121212] text-zinc-100 font-sans pb-24 min-h-screen">
 
-    <!-- ==================== LOGIN / LOADING SCREEN ==================== -->
-    <div id="auth-screen" class="min-h-screen bg-[#121212] flex flex-col items-center justify-center p-4 z-50 fixed inset-0">
-        <div class="bg-[#1a1a1c] border border-zinc-800 p-8 rounded-2xl max-w-md w-full text-center shadow-2xl space-y-6">
-            <div class="w-20 h-20 bg-zinc-800 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner">📅</div>
-            <div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent mb-1">Kalkulator Syif Pro</h1>
-                <p class="text-xs font-bold text-zinc-400 tracking-widest uppercase">Made by KoMeZ</p>
-            </div>
-            <p id="auth-message" class="text-sm text-zinc-500">Menyemak status log masuk...</p>
-            <button id="btn-google-login" onclick="handleGoogleLogin()" class="hidden w-full py-3 px-4 bg-white hover:bg-zinc-200 text-black font-bold rounded-lg transition-colors flex items-center justify-center gap-3 shadow-lg">
-                <svg class="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                </svg>
-                Teruskan dengan Google
-            </button>
-            <button id="btn-local-login" onclick="startLocalMode()" class="hidden w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-lg transition-colors shadow-lg">
-                Guna Mod Tempatan (Offline)
-            </button>
-        </div>
-    </div>
-
-    <!-- ==================== MAIN APP (HIDDEN BY DEFAULT) ==================== -->
-    <div id="app-container" class="hidden">
+    <div id="app-container">
         <!-- HEADER -->
         <header class="bg-[#1a1a1c] border-b border-zinc-800 p-4 sticky top-0 z-30 flex justify-between items-center shadow-md">
             <div class="flex flex-col">
@@ -57,9 +27,6 @@
             <div class="flex gap-3 items-center">
                 <button id="btn-pattern" onclick="openModal('pattern-modal')" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-cyan-400 shadow">🪄</button>
                 <button onclick="openSettings()" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 shadow">⚙️</button>
-                <div class="relative group cursor-pointer" onclick="handleLogout()" title="Log Keluar">
-                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm font-bold border-2 border-emerald-500 overflow-hidden">U</div>
-                </div>
             </div>
         </header>
 
@@ -138,7 +105,7 @@
     </div>
 
     <!-- BOTTOM NAVIGATION -->
-    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-[#1a1a1c] border-t border-zinc-800 p-3 z-40 pb-safe">
+    <nav id="bottom-nav" class="fixed bottom-0 w-full bg-[#1a1a1c] border-t border-zinc-800 p-3 z-40 pb-safe">
         <div class="max-w-md mx-auto flex justify-around">
             <button onclick="switchView('calendar')" id="nav-calendar" class="flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-emerald-400 bg-emerald-400/10">
                 <span class="text-2xl">📅</span><span class="text-[10px] font-bold">Kalendar</span>
@@ -150,6 +117,7 @@
     </nav>
 
     <!-- ==================== MODALS ==================== -->
+    
     <!-- DAY MODAL -->
     <div id="day-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
@@ -232,6 +200,17 @@
                 <button onclick="saveAndCloseSettings()" class="p-1 text-xl">❌</button>
             </div>
             <div class="p-5 overflow-y-auto space-y-6 flex-1 pb-20">
+
+                <!-- SECTION: BACKUP & RESTORE -->
+                <section class="space-y-3 border-b border-zinc-800 pb-5">
+                    <h4 class="text-xs font-bold text-blue-400 uppercase">Pindah Data (Backup & Restore)</h4>
+                    <div class="flex gap-2">
+                        <button onclick="exportData()" class="flex-1 bg-blue-600/20 border border-blue-600/50 text-blue-400 p-2 rounded text-xs font-bold hover:bg-blue-600 hover:text-white transition">⬇️ Download Backup</button>
+                        <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-orange-600/20 border border-orange-600/50 text-orange-400 p-2 rounded text-xs font-bold hover:bg-orange-600 hover:text-white transition">⬆️ Upload Restore</button>
+                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
+                    </div>
+                    <p class="text-[10px] text-zinc-500 mt-1 leading-tight">Simpan fail backup (JSON) ke Google Drive, storan awan, atau hantar ke WhatsApp sendiri. Buka fail tersebut di peranti baru untuk memulihkan data.</p>
+                </section>
                 
                 <section class="space-y-3 border-b border-zinc-800 pb-5">
                     <h4 class="text-xs font-bold text-emerald-400 uppercase">Gaji & Kitaran</h4>
@@ -291,7 +270,6 @@
 
     <!-- ==================== JAVASCRIPT LOGIC ==================== -->
     <script>
-        // --- GLOBAL STATE ---
         const defaultSettings = {
             shiftName: 'Jadual Syif',
             baseSalary: 3000,
@@ -312,136 +290,81 @@
         };
 
         let state = {
-            user: null,
-            isLocalMode: false,
             activeView: 'calendar',
             currentDate: new Date(),
             calcMonth: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`,
             settings: JSON.parse(JSON.stringify(defaultSettings)),
             records: {},
-            lastSummary: null // Untuk modal breakdown
+            lastSummary: null 
         };
-
-        let db = null;
-        let auth = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-shift-app';
-        let unsubSettings = null;
-        let unsubRecords = null;
 
         const formatRM = (val) => new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' }).format(val || 0);
         const parseNum = (val) => parseFloat(val) || 0;
         const getFullDateStr = (y, m, d) => `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
         const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
-        // --- INIT FIREBASE / LOCAL MODE ---
+        // --- INIT ---
         window.onload = () => {
-            const fbConfig = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+            const savedSettings = localStorage.getItem('shiftApp_settings');
+            const savedRecords = localStorage.getItem('shiftApp_records');
             
-            if (fbConfig && typeof firebase !== 'undefined') {
-                try {
-                    const parsedConfig = typeof fbConfig === 'string' ? JSON.parse(fbConfig) : fbConfig;
-                    firebase.initializeApp(parsedConfig);
-                    auth = firebase.auth();
-                    db = firebase.firestore();
-                    
-                    auth.onAuthStateChanged(user => {
-                        if (user) {
-                            state.user = user;
-                            loadFirebaseData();
-                            document.getElementById('user-avatar').innerText = user.email ? user.email[0].toUpperCase() : 'U';
-                            if(user.photoURL) {
-                                document.getElementById('user-avatar').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
-                            }
-                            showApp();
-                        } else {
-                            document.getElementById('auth-message').innerText = "Sila log masuk untuk meneruskan.";
-                            document.getElementById('btn-google-login').classList.remove('hidden');
-                            document.getElementById('btn-local-login').classList.remove('hidden');
-                        }
-                    });
-                } catch (e) {
-                    console.error("Firebase Error:", e);
-                    startLocalMode();
-                }
-            } else {
-                startLocalMode(); // Auto fallback
-            }
+            if (savedSettings) state.settings = { ...defaultSettings, ...JSON.parse(savedSettings) };
+            if (savedRecords) state.records = JSON.parse(savedRecords);
 
-            // Set initial inputs
+            document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif';
+            
             const d = new Date();
             document.getElementById('calc-month').value = state.calcMonth;
             document.getElementById('pat-start').value = getFullDateStr(d.getFullYear(), d.getMonth(), d.getDate());
             document.getElementById('pat-end').value = getFullDateStr(d.getFullYear(), d.getMonth(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
-        };
 
-        function startLocalMode() {
-            state.isLocalMode = true;
-            const savedSettings = localStorage.getItem('shiftApp_settings');
-            const savedRecords = localStorage.getItem('shiftApp_records');
-            if (savedSettings) state.settings = { ...defaultSettings, ...JSON.parse(savedSettings) };
-            if (savedRecords) state.records = JSON.parse(savedRecords);
-            showApp();
-        }
-
-        function showApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('bottom-nav').classList.remove('hidden');
-            document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif';
             renderCalendar();
             renderSalary();
+        };
+
+        function saveData() {
+            localStorage.setItem('shiftApp_settings', JSON.stringify(state.settings));
+            localStorage.setItem('shiftApp_records', JSON.stringify(state.records));
         }
 
-        // --- FIREBASE DATA SYNC ---
-        function loadFirebaseData() {
-            if (state.isLocalMode) return;
-            const uid = state.user.uid;
-            
-            unsubSettings = db.collection('artifacts').doc(appId).collection('users').doc(uid).collection('appData').doc('shiftSettings')
-                .onSnapshot(doc => {
-                    if (doc.exists) {
-                        let data = doc.data();
-                        if (!data.dayTypes) data.dayTypes = defaultSettings.dayTypes;
-                        if (!data.shiftName) data.shiftName = defaultSettings.shiftName;
-                        state.settings = { ...defaultSettings, ...data };
+        // --- BACKUP & RESTORE LOGIC ---
+        function exportData() {
+            const dataToExport = {
+                settings: state.settings,
+                records: state.records
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            const today = new Date().toISOString().slice(0, 10);
+            downloadAnchor.setAttribute("download", "Backup_Kalkulator_Syif_" + today + ".json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.settings && importedData.records) {
+                        state.settings = importedData.settings;
+                        state.records = importedData.records;
+                        saveData();
+                        alert("Data berjaya dipulihkan (restored)!\nSistem akan dimuat semula.");
+                        location.reload(); 
+                    } else {
+                        alert("Ralat: Fail backup tidak sah atau rosak.");
                     }
-                    document.getElementById('header-title').innerText = state.settings.shiftName;
-                    renderCalendar(); renderSalary();
-                });
-
-            unsubRecords = db.collection('artifacts').doc(appId).collection('users').doc(uid).collection('appData').doc('shiftRecords')
-                .onSnapshot(doc => {
-                    if (doc.exists) state.records = doc.data();
-                    renderCalendar(); renderSalary();
-                });
-        }
-
-        async function saveData(type) {
-            if (state.isLocalMode) {
-                if (type === 'settings') localStorage.setItem('shiftApp_settings', JSON.stringify(state.settings));
-                if (type === 'records') localStorage.setItem('shiftApp_records', JSON.stringify(state.records));
-            } else if (state.user) {
-                const uid = state.user.uid;
-                const ref = db.collection('artifacts').doc(appId).collection('users').doc(uid).collection('appData');
-                if (type === 'settings') await ref.doc('shiftSettings').set(state.settings);
-                if (type === 'records') await ref.doc('shiftRecords').set(state.records);
-            }
-        }
-
-        function handleGoogleLogin() {
-            if(!auth) return;
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(e => alert("Log masuk gagal: " + e.message));
-        }
-
-        function handleLogout() {
-            if (confirm("Adakah anda pasti untuk log keluar?")) {
-                if (state.isLocalMode) {
-                    location.reload();
-                } else if(auth) {
-                    auth.signOut().then(() => location.reload());
+                } catch (err) {
+                    alert("Ralat membaca fail: " + err.message);
                 }
-            }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; 
         }
 
         // --- UI TOGGLES ---
@@ -456,7 +379,7 @@
                 vCal.classList.remove('hidden'); vSal.classList.add('hidden');
                 btnCal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-emerald-400 bg-emerald-400/10";
                 btnSal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-zinc-500";
-                document.getElementById('header-title').innerText = state.settings.shiftName;
+                document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif';
                 document.getElementById('btn-pattern').classList.remove('hidden');
                 renderCalendar();
             } else {
@@ -681,7 +604,7 @@
                 ot: document.getElementById('modal-ot').value,
                 note: document.getElementById('modal-note').value
             };
-            saveData('records');
+            saveData();
             closeModal('day-modal');
             renderCalendar();
             renderSalary();
@@ -722,7 +645,7 @@
                 curr.setDate(curr.getDate() + 1);
                 idx++;
             }
-            saveData('records');
+            saveData();
             closeModal('pattern-modal');
             renderCalendar(); renderSalary();
         }
@@ -839,7 +762,7 @@
             state.settings.mealAllowance = document.getElementById('set-meal').value;
             if (parseNum(state.settings.baseSalary) >= 4000) state.settings.customHourlyRate = document.getElementById('set-customrate').value;
             
-            saveData('settings');
+            saveData();
             closeModal('settings-modal');
             document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif';
             renderSalary(); 
