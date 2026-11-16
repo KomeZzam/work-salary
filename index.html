@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Gaji & Syif</title>
+    
+    <!-- 1. Muatkan Tailwind CSS dari CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Muatkan React & ReactDOM dari CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 3. Muatkan Babel Standalone untuk membolehkan penulisan JSX dalam browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-[#121212]">
+    
+    <!-- Tempat di mana React App akan dirender -->
+    <div id="root"></div>
+
+    <!-- 4. Tulis kod React dengan type="text/babel" -->
+    <script type="text/babel">
+        // Ekstrak Hooks dari global React object
+        const { useState, useEffect, useMemo } = React;
+
+        // --- ICON KOMPONEN (Pengganti lucide-react) ---
+        const SvgIcon = ({ children, size = 24, className = "" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {children}
+            </svg>
+        );
+
+        const Settings = (props) => <SvgIcon {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></SvgIcon>;
+        const CalcIcon = (props) => <SvgIcon {...props}><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></SvgIcon>;
+        const CalIcon = (props) => <SvgIcon {...props}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></SvgIcon>;
+        const ChevronLeft = (props) => <SvgIcon {...props}><path d="m15 18-6-6 6-6"/></SvgIcon>;
+        const ChevronRight = (props) => <SvgIcon {...props}><path d="m9 18 6-6-6-6"/></SvgIcon>;
+        const X = (props) => <SvgIcon {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></SvgIcon>;
+        const Plus = (props) => <SvgIcon {...props}><path d="M5 12h14"/><path d="M12 5v14"/></SvgIcon>;
+        const Trash2 = (props) => <SvgIcon {...props}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></SvgIcon>;
+        const Save = (props) => <SvgIcon {...props}><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></SvgIcon>;
+        const Wand2 = (props) => <SvgIcon {...props}><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></SvgIcon>;
+
+        // --- APP KOMPONEN UTAMA ---
+        function App() {
+          // --- STATE MANAGEMENT ---
+          const [calendarData, setCalendarData] = useState({});
+          const [activeView, setActiveView] = useState('calendar'); // 'calendar' | 'calculator'
+          const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+          const [isPatternOpen, setIsPatternOpen] = useState(false);
+          
+          // Date States
+          const [currentDate, setCurrentDate] = useState(new Date()); 
+          const [calcMonth, setCalcMonth] = useState(() => {
+            const d = new Date();
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+          }); 
+
+          // Settings State
+          const [settings, setSettings] = useState({
+            basicSalary: 3000,
+            customRate: '',
+            startCycle: 20,
+            endCycle: 19,
+            mealAllowanceRate: 10,
+            deductions: [
+              { id: 1, name: 'KWSP', amount: '' },
+              { id: 2, name: 'PERKESO', amount: '' }
+            ]
+          });
+
+          // Pattern Generator State
+          const [patternConfig, setPatternConfig] = useState(() => {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = (d.getMonth() + 1).toString().padStart(2, '0');
+            const day = d.getDate().toString().padStart(2, '0');
+            return {
+              startDate: `${y}-${m}-${day}`,
+              pattern: 'M, M, M, M, OFF, REST, N, N, N, N, OFF, REST',
+              untilMonth: `${y}-${m}`
+            };
+          });
+
+          // Modal State for Day Edit
+          const [dayModal, setDayModal] = useState({ isOpen: false, date: '', data: { shift: '', ot: '', nota: '' } });
+
+          // --- LOCAL STORAGE ---
+          useEffect(() => {
+            const savedData = localStorage.getItem('shiftApp_calendarData');
+            const savedSettings = localStorage.getItem('shiftApp_settings');
+            if (savedData) setCalendarData(JSON.parse(savedData));
+            if (savedSettings) setSettings(JSON.parse(savedSettings));
+          }, []);
+
+          useEffect(() => {
+            localStorage.setItem('shiftApp_calendarData', JSON.stringify(calendarData));
+            localStorage.setItem('shiftApp_settings', JSON.stringify(settings));
+          }, [calendarData, settings]);
+
+          // --- HELPER FUNCTIONS ---
+          const formatRM = (val) => new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' }).format(val || 0);
+          const getFullDateStr = (y, m, d) => `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+          const parseNumber = (val) => parseFloat(val) || 0;
+
+          // --- CALENDAR LOGIC ---
+          const calendarGrid = useMemo(() => {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const blanks = Array.from({ length: firstDay }, (_, i) => i);
+            const days = Array.from({ length: daysInMonth }, (_, i) => {
+              const dayNum = i + 1;
+              return {
+                dayNum,
+                dateStr: getFullDateStr(year, month, dayNum),
+                isToday: new Date().toDateString() === new Date(year, month, dayNum).toDateString()
+              };
+            });
+            return { blanks, days, year, month };
+          }, [currentDate]);
+
+          const getShiftColor = (shiftText) => {
+            if (!shiftText) return 'bg-[#1e1e1e] text-zinc-300';
+            const s = shiftText.toUpperCase();
+            if (s.includes('M')) return 'bg-emerald-700 text-white border-emerald-900';
+            if (s.includes('N')) return 'bg-zinc-700 text-white border-zinc-900';
+            if (s.includes('REST') || s.includes('OFF')) return 'bg-zinc-400 text-black border-zinc-500 font-bold';
+            if (s.includes('PH') || s.includes('CRD')) return 'bg-rose-900 text-white border-rose-950 font-bold';
+            return 'bg-[#1e1e1e] text-zinc-300';
+          };
+
+          // --- CALCULATOR LOGIC ---
+          const salaryCycleDays = useMemo(() => {
+            if (!calcMonth) return [];
+            const [yearStr, monthStr] = calcMonth.split('-');
+            const y = parseInt(yearStr);
+            const m = parseInt(monthStr) - 1; 
+            
+            const startDay = parseInt(settings.startCycle) || 1;
+            const endDay = parseInt(settings.endCycle) || 31;
+            
+            let startDate, endDate;
+            if (startDay > endDay) {
+              startDate = new Date(y, m - 1, startDay);
+              endDate = new Date(y, m, endDay);
+            } else {
+              startDate = new Date(y, m, startDay);
+              endDate = new Date(y, m, endDay);
+            }
+
+            const dates = [];
+            let curr = new Date(startDate);
+            while (curr <= endDate && dates.length < 35) {
+              dates.push({
+                dateStr: getFullDateStr(curr.getFullYear(), curr.getMonth(), curr.getDate()),
+                dayNum: curr.getDate(),
+                formattedDate: `${curr.getDate().toString().padStart(2, '0')}/${(curr.getMonth() + 1).toString().padStart(2, '0')}`,
+                isSunday: curr.getDay() === 0
+              });
+              curr.setDate(curr.getDate() + 1);
+            }
+            return dates;
+          }, [calcMonth, settings.startCycle, settings.endCycle]);
+
+          const summary = useMemo(() => {
+            const basic = parseNumber(settings.basicSalary);
+            const customRate = parseNumber(settings.customRate);
+            
+            let baseRate = basic / 26 / 8;
+            if (basic >= 4000 && customRate > 0) baseRate = customRate;
+
+            let totalOtAmount = 0;
+            let totalOtHours = 0;
+            let countShiftN = 0;
+
+            salaryCycleDays.forEach(day => {
+              const rec = calendarData[day.dateStr] || {};
+              const shiftUpper = (rec.shift || '').toUpperCase();
+              const otHours = parseNumber(rec.ot);
+
+              if (shiftUpper.includes('N')) countShiftN++;
+
+              if (otHours > 0) {
+                totalOtHours += otHours;
+                let rateMult = 1.5;
+                let isPH = false;
+
+                if (shiftUpper.includes('PH')) {
+                  isPH = true;
+                } else if (shiftUpper.includes('REST') || shiftUpper.includes('CRD')) {
+                  rateMult = 2.0;
+                }
+
+                if (isPH) {
+                  const first8 = Math.min(otHours, 8);
+                  const remainder = Math.max(0, otHours - 8);
+                  totalOtAmount += (first8 * baseRate * 2.0) + (remainder * baseRate * 3.0);
+                } else {
+                  totalOtAmount += otHours * baseRate * rateMult;
+                }
+              }
+            });
+
+            const totalMeal = countShiftN * parseNumber(settings.mealAllowanceRate);
+            const gross = basic + totalOtAmount + totalMeal;
+            const totalDeductions = settings.deductions.reduce((sum, d) => sum + parseNumber(d.amount), 0);
+            const net = gross - totalDeductions;
+
+            return { baseRate, totalOtHours, totalOtAmount, countShiftN, totalMeal, gross, totalDeductions, net };
+          }, [salaryCycleDays, calendarData, settings]);
+
+          // --- HANDLERS ---
+          const handleDayClick = (dateStr) => {
+            const data = calendarData[dateStr] || { shift: '', ot: '', nota: '' };
+            setDayModal({ isOpen: true, date: dateStr, data });
+          };
+
+          const handleModalChange = (field, value) => {
+            setDayModal(prev => {
+              let newData = { ...prev.data, [field]: value };
+              if (field === 'shift') {
+                const s = value.toUpperCase();
+                if ((s.includes('M') || s.includes('N')) && !s.includes('OFF') && !s.includes('REST')) {
+                  if (!prev.data.ot) newData.ot = '3';
+                } else if (!value) {
+                  newData.ot = '';
+                }
+              }
+              return { ...prev, data: newData };
+            });
+          };
+
+          const saveDayModal = () => {
+            setCalendarData(prev => ({ ...prev, [dayModal.date]: dayModal.data }));
+            setDayModal({ ...dayModal, isOpen: false });
+          };
+
+          const handleInlineEdit = (dateStr, field, value) => {
+            setCalendarData(prev => {
+              const curr = prev[dateStr] || { shift: '', ot: '', nota: '' };
+              let newData = { ...curr, [field]: value };
+              if (field === 'shift') {
+                const s = value.toUpperCase();
+                if ((s.includes('M') || s.includes('N')) && !s.includes('OFF') && !s.includes('REST')) {
+                  if (!curr.ot) newData.ot = '3';
+                } else if (!value) newData.ot = '';
+              }
+              return { ...prev, [dateStr]: newData };
+            });
+          };
+
+          const generateShiftPattern = () => {
+            if (!patternConfig.startDate || !patternConfig.pattern || !patternConfig.untilMonth) return;
+            
+            const shifts = patternConfig.pattern.split(',').map(s => s.trim().toUpperCase()).filter(s => s);
+            if (shifts.length === 0) return;
+
+            const [sy, sm, sd] = patternConfig.startDate.split('-');
+            let current = new Date(parseInt(sy), parseInt(sm) - 1, parseInt(sd));
+            
+            const [untilY, untilM] = patternConfig.untilMonth.split('-');
+            const endDate = new Date(parseInt(untilY), parseInt(untilM), 0); 
+            
+            let index = 0;
+            const newData = { ...calendarData };
+
+            while (current <= endDate) {
+              const dateStr = getFullDateStr(current.getFullYear(), current.getMonth(), current.getDate());
+              const shift = shifts[index % shifts.length];
+              
+              let ot = '';
+              if ((shift.includes('M') || shift.includes('N')) && !shift.includes('OFF') && !shift.includes('REST')) {
+                ot = '3';
+              }
+
+              newData[dateStr] = {
+                ...(newData[dateStr] || {}),
+                shift,
+                ot: newData[dateStr]?.ot && newData[dateStr].shift === shift ? newData[dateStr].ot : ot
+              };
+
+              current.setDate(current.getDate() + 1);
+              index++;
+            }
+
+            setCalendarData(newData);
+            setIsPatternOpen(false);
+          };
+
+          const updateSetting = (field, value) => setSettings(prev => ({ ...prev, [field]: value }));
+          const addDeduction = () => setSettings(prev => ({ ...prev, deductions: [...prev.deductions, { id: Date.now(), name: '', amount: '' }] }));
+          const updateDeduction = (id, field, value) => setSettings(prev => ({
+            ...prev, deductions: prev.deductions.map(d => d.id === id ? { ...d, [field]: value } : d)
+          }));
+          const removeDeduction = (id) => setSettings(prev => ({
+            ...prev, deductions: prev.deductions.filter(d => d.id !== id)
+          }));
+
+          // --- RENDERERS ---
+          const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+          return (
+            <div className="min-h-screen bg-[#121212] text-zinc-100 font-sans sm:pb-10">
+              
+              {/* HEADER */}
+              <header className="bg-[#1e1e1e] border-b border-zinc-800 p-4 sticky top-0 z-30 flex justify-between items-center shadow-lg">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent truncate">
+                  {activeView === 'calendar' ? 'Kalendar Syif' : 'Kira Gaji Bulanan'}
+                </h1>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setIsPatternOpen(true)}
+                    className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition active:scale-95 text-cyan-400"
+                    title="Jana Corak Syif"
+                  >
+                    <Wand2 size={20} />
+                  </button>
+                  <button 
+                    onClick={() => setActiveView(activeView === 'calendar' ? 'calculator' : 'calendar')}
+                    className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition active:scale-95 text-emerald-400"
+                  >
+                    {activeView === 'calendar' ? <CalcIcon size={20} /> : <CalIcon size={20} />}
+                  </button>
+                  <button 
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition active:scale-95 text-zinc-300"
+                  >
+                    <Settings size={20} />
+                  </button>
+                </div>
+              </header>
+
+              {/* VIEW: CALENDAR */}
+              {activeView === 'calendar' && (
+                <div className="flex flex-col h-[calc(100vh-70px)] sm:h-auto max-w-3xl mx-auto">
+                  {/* Calendar Nav */}
+                  <div className="flex justify-between items-center p-4 bg-[#18181b]">
+                    <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))} className="p-2 active:bg-zinc-800 rounded-full"><ChevronLeft size={24}/></button>
+                    <h2 className="text-lg font-bold tracking-widest text-white">{monthNames[calendarGrid.month]} {calendarGrid.year}</h2>
+                    <button onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))} className="p-2 active:bg-zinc-800 rounded-full"><ChevronRight size={24}/></button>
+                  </div>
+                  
+                  {/* Days Header */}
+                  <div className="grid grid-cols-7 text-center py-2 bg-[#1e1e1e] border-b border-zinc-800 text-xs font-bold text-zinc-500">
+                    <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+                  </div>
+                  
+                  {/* Calendar Grid */}
+                  <div className="flex-1 grid grid-cols-7 grid-rows-5 gap-[1px] bg-zinc-900 border-b border-zinc-800">
+                    {calendarGrid.blanks.map(b => <div key={`blank-${b}`} className="bg-[#121212]"></div>)}
+                    {calendarGrid.days.map(day => {
+                      const rec = calendarData[day.dateStr] || {};
+                      const bgClass = getShiftColor(rec.shift);
+                      return (
+                        <div 
+                          key={day.dateStr} 
+                          onClick={() => handleDayClick(day.dateStr)}
+                          className={`relative flex flex-col p-1 cursor-pointer transition active:opacity-70 border border-zinc-800/50 min-h-[80px] sm:min-h-[100px] ${bgClass}`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <span className={`text-xs font-bold ${day.isToday ? 'bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center' : 'opacity-80'}`}>
+                              {day.dayNum}
+                            </span>
+                            {rec.ot && <span className="text-[9px] font-black bg-amber-400 text-black px-1 rounded shadow-sm">OT {rec.ot}</span>}
+                          </div>
+                          <div className="flex-1 flex items-center justify-center">
+                            <span className="text-xl sm:text-2xl font-black uppercase tracking-tighter opacity-90 truncate max-w-full">
+                              {rec.shift}
+                            </span>
+                          </div>
+                          {rec.nota && (
+                  
