@@ -17,10 +17,12 @@
 </head>
 <body class="bg-[#121212] text-zinc-100 font-sans pb-24 min-h-screen selection:bg-emerald-500/30">
 
+    <!-- LOADING SCREEN -->
     <div id="loading-screen" class="min-h-screen bg-[#121212] flex items-center justify-center text-emerald-400 font-normal text-sm z-50 fixed inset-0">
         MEMUAT...
     </div>
 
+    <!-- APP CONTAINER -->
     <div id="app-container" class="hidden">
         <!-- HEADER -->
         <header class="bg-[#1a1a1c] border-b border-zinc-800 p-4 sticky top-0 z-30 flex justify-between items-center shadow-md">
@@ -34,7 +36,10 @@
             </div>
             <div class="flex gap-3 items-center">
                 <button id="btn-pattern" onclick="openModal('pattern-modal')" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-cyan-400 shadow transition-colors">🪄</button>
-                <button onclick="openSettings()" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 shadow transition-colors">⚙️</button>
+                <button onclick="openSettings()" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 shadow transition-colors relative">
+                    ⚙️
+                    <span id="settings-indicator" class="absolute -top-1 -right-1 bg-rose-600 text-white text-[8px] rounded px-1"></span>
+                </button>
             </div>
         </header>
 
@@ -44,9 +49,12 @@
             <div id="view-calendar">
                 <div class="flex flex-col bg-[#1a1a1c] border border-zinc-800 rounded-xl overflow-hidden shadow-lg mt-2">
                     <div class="flex justify-between items-center p-4 bg-zinc-900/80">
-                        <button onclick="changeMonth(-1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👈</button>
-                        <h2 id="cal-month-year" class="text-sm font-normal tracking-widest uppercase text-white"></h2>
-                        <button onclick="changeMonth(1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👉</button>
+                        <button onclick="shiftMonth(-1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👈</button>
+                        <div class="text-center">
+                            <h2 id="cal-month-year" class="text-sm font-normal tracking-widest uppercase text-white leading-tight"></h2>
+                            <span class="text-[10px] text-zinc-500">Tapik grid untuk edit</span>
+                        </div>
+                        <button onclick="shiftMonth(1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👉</button>
                     </div>
                     
                     <div class="grid grid-cols-7 text-center py-2 bg-zinc-900 border-b border-zinc-800 text-[10px] sm:text-xs font-normal text-zinc-500 uppercase">
@@ -59,11 +67,12 @@
 
             <!-- ================= VIEW: SALARY ================= -->
             <div id="view-salary" class="hidden space-y-4 mt-2">
-                <div class="bg-[#1a1a1c] p-4 rounded-xl border border-zinc-800 shadow-md flex flex-wrap gap-2 justify-between items-center">
-                    <div>
-                        <h2 id="calc-cycle-label" class="font-normal text-emerald-400 text-sm uppercase"></h2>
+                <div class="bg-[#1a1a1c] p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-normal text-emerald-400 text-sm uppercase">Kitaran (Bulanan)</h2>
+                        <input type="month" id="calc-month" onchange="updateCalcMonth()" class="bg-zinc-800 border border-zinc-700 text-sm p-1.5 rounded outline-none text-white font-normal" />
                     </div>
-                    <input type="month" id="calc-month" onchange="updateCalcMonth()" class="bg-zinc-800 border border-zinc-700 text-sm p-2 rounded outline-none text-white font-normal focus:border-emerald-500" />
+                    <p id="calc-cycle-label" class="text-[10px] text-zinc-500 uppercase"></p>
                 </div>
 
                 <div class="overflow-x-auto rounded-xl border border-zinc-800 shadow-md bg-[#1a1a1c]">
@@ -82,21 +91,28 @@
                 </div>
 
                 <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-xl">
-                    <h3 class="text-white font-normal mb-4 border-b border-zinc-800 pb-2 text-sm uppercase">Ringkasan Pendapatan</h3>
+                    <h3 class="text-white font-normal mb-4 border-b border-zinc-800 pb-2 text-sm uppercase">Ringkasan Gaji</h3>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                         <div class="bg-[#121212] rounded p-3 border border-zinc-800">
                             <span class="text-[10px] text-zinc-500 uppercase block mb-1">Gaji Asas</span>
                             <span id="sum-basic" class="text-sm font-normal text-white"></span>
                         </div>
                         <div onclick="openBreakdownModal('allowance')" class="bg-[#121212] rounded p-3 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition active:scale-95 group">
-                            <span class="text-[10px] text-zinc-500 uppercase block mb-1 flex items-center justify-between">Semua Elaun <span class="group-hover:text-emerald-400 transition">🔍</span></span>
+                            <span class="text-[9px] sm:text-[10px] text-zinc-500 uppercase flex items-center justify-between mb-1">
+                                Semua Elaun <span class="group-hover:text-emerald-400 transition">🔍</span>
+                            </span>
                             <span id="sum-allowance" class="text-sm font-normal text-cyan-400"></span>
+                            <div class="text-[8px] text-zinc-600 mt-1 italic leading-tight">👆 Klik untuk perincian</div>
                         </div>
                         <div onclick="openBreakdownModal('ot')" class="bg-[#121212] rounded p-3 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition active:scale-95 group">
-                            <span class="text-[10px] text-zinc-500 uppercase block mb-1 flex items-center justify-between">Bayaran OT <span class="group-hover:text-emerald-400 transition">🔍</span></span>
+                            <span class="text-[9px] sm:text-[10px] text-zinc-500 uppercase flex items-center justify-between mb-1">
+                                Bayaran OT <span class="group-hover:text-emerald-400 transition">🔍</span>
+                            </span>
                             <span id="sum-ot" class="text-sm font-normal text-amber-400"></span>
+                            <div class="text-[8px] text-zinc-600 mt-1 italic leading-tight">👆 Klik untuk perincian</div>
                         </div>
                     </div>
+                    
                     <div class="flex justify-between items-center border-t border-zinc-800 pt-4 mb-2">
                         <span class="text-sm text-zinc-400">Gaji Kasar</span>
                         <span id="sum-gross" class="text-base font-normal text-emerald-400"></span>
@@ -130,7 +146,7 @@
 
     <!-- ==================== MODALS ==================== -->
     
-    <!-- DAY MODAL -->
+    <!-- 1. DAY MODAL -->
     <div id="day-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
             <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
@@ -141,12 +157,12 @@
                 <input type="hidden" id="modal-date">
                 <div>
                     <label class="text-[10px] font-normal text-zinc-500 uppercase">Jenis Hari</label>
-                    <select id="modal-daytype" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal"></select>
+                    <select id="modal-daytype" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white"></select>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] font-normal text-zinc-500 uppercase">Syif</label>
-                        <select id="modal-shift" onchange="autoOT()" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal">
+                        <select id="modal-shift" onchange="autoOT()" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white">
                             <option value="">- Tiada -</option>
                             <option value="M">M</option><option value="N">N</option><option value="M<8">M<8</option>
                             <option value="N<8">N<8</option><option value="M<12">M<12</option><option value="N<12">N<12</option>
@@ -155,23 +171,23 @@
                     </div>
                     <div>
                         <label class="text-[10px] font-normal text-zinc-500 uppercase">OT (Jam)</label>
-                        <input type="number" step="0.5" id="modal-ot" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal" />
+                        <input type="number" step="0.5" id="modal-ot" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white" />
                     </div>
                 </div>
                 <div>
                     <label class="text-[10px] font-normal text-zinc-500 uppercase">Nota Tambahan</label>
-                    <input type="text" id="modal-note" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal" />
+                    <input type="text" id="modal-note" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white" />
                 </div>
             </div>
             <button onclick="saveDayModal()" class="w-full p-4 bg-emerald-600 hover:bg-emerald-500 font-normal text-sm uppercase tracking-wide transition-colors">Simpan</button>
         </div>
     </div>
 
-    <!-- PATTERN MODAL -->
+    <!-- 2. PATTERN MODAL -->
     <div id="pattern-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
             <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
-                <h3 class="font-normal text-sm text-cyan-400 flex items-center gap-2">🪄 Jana Corak</h3>
+                <h3 class="font-normal text-sm text-cyan-400 flex items-center gap-2">🪄 Jana Corak Automatik</h3>
                 <button onclick="closeModal('pattern-modal')" class="p-1 text-xl">❌</button>
             </div>
             <div class="p-5 space-y-4">
@@ -181,7 +197,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-normal text-zinc-500 uppercase">Corak (Cth: M, OFF, REST, N)</label>
-                    <textarea id="pat-pattern" rows="2" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2 text-sm uppercase font-normal outline-none focus:border-cyan-500">M, M, M, M, OFF, REST, N, N, N, N, OFF, REST</textarea>
+                    <textarea id="pat-pattern" rows="2" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2 text-sm uppercase font-normal outline-none focus:border-cyan-500 text-white">M, M, M, M, OFF, REST, N, N, N, N, OFF, REST</textarea>
                 </div>
                 <div>
                     <label class="text-[10px] font-normal text-zinc-500 uppercase">Sehingga Tarikh</label>
@@ -192,29 +208,33 @@
         </div>
     </div>
 
-    <!-- SETTINGS MODAL -->
+    <!-- 3. SETTINGS MODAL -->
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex flex-col justify-end sm:justify-center items-center sm:p-4">
         <div class="bg-[#1a1a1c] w-full sm:max-w-md h-[90vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl border border-zinc-700 flex flex-col shadow-2xl">
             <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center shrink-0">
-                <h3 class="font-normal text-sm">⚙️ Tetapan Sistem</h3>
-                <button onclick="saveAndCloseSettings()" class="p-1 text-xl">❌</button>
+                <h3 class="font-normal text-sm text-white flex items-center gap-2">
+                    ⚙️ Tetapan <span id="settings-modal-month" class="bg-rose-600 text-[10px] px-2 py-0.5 rounded shadow"></span>
+                </h3>
+                <button onclick="closeModal('settings-modal')" class="p-1 text-xl">❌</button>
             </div>
+            
             <div class="p-5 overflow-y-auto space-y-6 flex-1 font-normal bg-zinc-950 pb-20">
-                <p class="text-[10px] text-amber-500/80 italic text-center -mt-2 mb-2">Nota: Segala tetapan Elaun dan Potongan di bawah akan dikekalkan setiap bulan. Anda tidak perlu isi semula.</p>
-                
+                <p id="settings-warning-text" class="text-[10px] text-emerald-400 italic text-center -mt-2 mb-2 bg-emerald-900/20 p-2 rounded">
+                    Tetapan ini HANYA digunakan untuk kitaran bulan ini. Rekod bulan lepas tidak akan terjejas.
+                </p>
+
                 <!-- BACKUP & RESTORE -->
                 <section class="space-y-3 pb-4 border-b border-zinc-800">
                    <h4 class="text-xs text-zinc-400 uppercase text-center pb-2">Backup & Restore</h4>
                    <div class="flex gap-3 pt-2">
                       <button onclick="exportData()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 p-3 rounded-lg text-sm transition">
-                        💾 Simpan Fail (Backup)
+                        💾 Simpan Fail (JSON)
                       </button>
                       <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 p-3 rounded-lg text-sm transition">
                         📂 Pulihkan (Restore)
                       </button>
                       <input type="file" id="import-file" onchange="importData(event)" accept=".json" class="hidden" />
                    </div>
-                   <p class="text-[10px] text-zinc-500 text-center leading-tight">Gunakan fungsi ini jika anda ingin menyimpan salinan data atau berpindah ke telefon baharu.</p>
                 </section>
 
                 <!-- GAJI & KITARAN -->
@@ -222,24 +242,24 @@
                     <h4 class="text-xs text-emerald-400 uppercase">Gaji & Kitaran</h4>
                     <div>
                         <label class="text-[10px] text-zinc-400 uppercase">Nama Jadual Syif</label>
-                        <input type="text" id="set-shiftname" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-emerald-400 outline-none focus:border-emerald-500 font-normal" />
+                        <input type="text" id="set-shiftname" onchange="updateSetting('shiftName', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-emerald-400 outline-none focus:border-emerald-500 font-normal" />
                     </div>
                     <div class="grid grid-cols-2 gap-3 mt-3">
                         <div>
                             <label class="text-[10px] text-zinc-400 uppercase">Gaji Asas (RM)</label>
-                            <input type="number" id="set-basic" oninput="updateCustomRateUI()" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm font-normal outline-none focus:border-emerald-500" />
+                            <input type="number" id="set-basic" onchange="updateSetting('baseSalary', this.value); updateCustomRateUI();" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white font-normal outline-none focus:border-emerald-500" />
                         </div>
                         <div>
                             <label class="text-[10px] text-zinc-400 uppercase">Kadar Sejam (RM)</label>
-                            <input type="number" step="0.01" id="set-customrate" class="w-full border rounded p-2 mt-1 text-sm font-normal outline-none focus:border-emerald-500" />
+                            <input type="number" step="0.01" id="set-customrate" onchange="updateSetting('customHourlyRate', this.value)" class="w-full border rounded p-2 mt-1 text-sm text-white font-normal outline-none focus:border-emerald-500" />
                         </div>
                         <div>
                             <label class="text-[10px] text-zinc-400 uppercase">Mula Kitaran (hb)</label>
-                            <input type="number" id="set-startcycle" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm font-normal outline-none focus:border-emerald-500" />
+                            <input type="number" id="set-startcycle" onchange="updateSetting('cycleStart', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white font-normal outline-none focus:border-emerald-500" />
                         </div>
                         <div>
                             <label class="text-[10px] text-zinc-400 uppercase">Tamat Kitaran (hb)</label>
-                            <input type="number" id="set-endcycle" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm font-normal outline-none focus:border-emerald-500" />
+                            <input type="number" id="set-endcycle" onchange="updateSetting('cycleEnd', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white font-normal outline-none focus:border-emerald-500" />
                         </div>
                     </div>
                 </section>
@@ -248,7 +268,7 @@
                 <section class="space-y-3 border-b border-zinc-800 pb-5">
                     <div class="flex justify-between items-center">
                         <h4 class="text-xs text-amber-400 uppercase">Jenis Hari & Gandaan OT</h4>
-                        <button onclick="addDayType()" class="text-[10px] uppercase tracking-wide bg-zinc-800 px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
+                        <button onclick="addDayType()" class="text-[10px] uppercase tracking-wide bg-zinc-800 text-white px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
                     </div>
                     <div id="settings-daytypes" class="space-y-3"></div>
                 </section>
@@ -259,7 +279,7 @@
                     <div id="settings-allowances" class="grid grid-cols-3 gap-2"></div>
                     <div class="mt-3 pt-3 border-t border-zinc-800/50">
                         <label class="text-[10px] text-zinc-400 uppercase">Elaun Meal (Untuk Syif N)</label>
-                        <input type="number" id="set-meal" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-center font-normal outline-none focus:border-cyan-500" />
+                        <input type="number" id="set-meal" onchange="updateSetting('mealAllowance', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white text-center font-normal outline-none focus:border-cyan-500" />
                     </div>
                 </section>
 
@@ -267,7 +287,7 @@
                 <section class="space-y-3 border-b border-zinc-800 pb-5">
                     <div class="flex justify-between items-center">
                         <h4 class="text-xs text-blue-400 uppercase">Elaun Tambahan (RM)</h4>
-                        <button onclick="addCustomAllowance()" class="text-[10px] uppercase tracking-wide bg-zinc-800 px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
+                        <button onclick="addCustomAllowance()" class="text-[10px] uppercase tracking-wide bg-zinc-800 text-white px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
                     </div>
                     <div id="settings-custom-allowances" class="space-y-2"></div>
                 </section>
@@ -276,17 +296,16 @@
                 <section class="space-y-3 pb-4">
                     <div class="flex justify-between items-center">
                         <h4 class="text-xs text-rose-400 uppercase">Potongan (RM)</h4>
-                        <button onclick="addDeduction()" class="text-[10px] uppercase tracking-wide bg-zinc-800 px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
+                        <button onclick="addDeduction()" class="text-[10px] uppercase tracking-wide bg-zinc-800 text-white px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
                     </div>
                     <div id="settings-deductions" class="space-y-2"></div>
                 </section>
 
             </div>
-            <button onclick="saveAndCloseSettings()" class="w-full p-4 bg-zinc-800 hover:bg-zinc-700 font-normal uppercase tracking-widest text-sm shrink-0 transition-colors">Tutup & Simpan</button>
         </div>
     </div>
 
-    <!-- BREAKDOWN MODAL -->
+    <!-- 4. BREAKDOWN MODAL -->
     <div id="breakdown-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl font-normal">
             <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
@@ -294,13 +313,13 @@
                 <button onclick="closeModal('breakdown-modal')" class="p-1 text-xl">❌</button>
             </div>
             <div id="breakdown-content" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto"></div>
-            <button onclick="closeModal('breakdown-modal')" class="w-full p-4 bg-zinc-800 hover:bg-zinc-700 font-normal uppercase tracking-widest text-sm transition-colors">Tutup</button>
+            <button onclick="closeModal('breakdown-modal')" class="w-full p-4 bg-zinc-800 hover:bg-zinc-700 text-white font-normal uppercase tracking-widest text-sm transition-colors">Tutup</button>
         </div>
     </div>
 
-    <!-- ==================== JAVASCRIPT ==================== -->
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
     <script>
-        const defaultSettings = {
+        const defaultMonthSettings = {
             shiftName: 'Jadual Syif Q',
             baseSalary: 3000,
             customHourlyRate: '',
@@ -326,12 +345,12 @@
             ]
         };
 
-        let state = {
+        const state = {
             activeView: 'calendar',
-            currentDate: new Date(),
-            calcMonth: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`,
-            settings: JSON.parse(JSON.stringify(defaultSettings)),
+            activeMonth: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`,
             records: {},
+            monthlySettings: {},
+            activeSettings: null, // Resolves specifically for activeMonth
             lastSummary: null 
         };
 
@@ -343,17 +362,16 @@
         // --- INIT ---
         window.onload = () => {
             try {
-                const savedSettings = localStorage.getItem('komez_shift_settings');
-                const savedRecords = localStorage.getItem('komez_shift_records');
+                const savedSettings = localStorage.getItem('komez_monthly_settings');
+                if (savedSettings) state.monthlySettings = JSON.parse(savedSettings);
                 
-                if (savedSettings) state.settings = { ...defaultSettings, ...JSON.parse(savedSettings) };
+                const savedRecords = localStorage.getItem('komez_shift_records');
                 if (savedRecords) state.records = JSON.parse(savedRecords);
             } catch (e) { console.error(e); }
 
-            document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif Q';
-            
+            updateActiveSettingsScope();
+
             const d = new Date();
-            document.getElementById('calc-month').value = state.calcMonth;
             document.getElementById('pat-start').value = getFullDateStr(d.getFullYear(), d.getMonth(), d.getDate());
             document.getElementById('pat-end').value = getFullDateStr(d.getFullYear(), d.getMonth(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
 
@@ -365,14 +383,48 @@
             renderSalary();
         };
 
-        function saveData() {
-            localStorage.setItem('komez_shift_settings', JSON.stringify(state.settings));
+        // --- SETTINGS SCOPE RESOLUTION ---
+        function updateActiveSettingsScope() {
+            if (state.monthlySettings[state.activeMonth]) {
+                state.activeSettings = JSON.parse(JSON.stringify(state.monthlySettings[state.activeMonth]));
+            } else {
+                const pastMonths = Object.keys(state.monthlySettings).filter(m => m < state.activeMonth).sort();
+                if (pastMonths.length > 0) {
+                    state.activeSettings = JSON.parse(JSON.stringify(state.monthlySettings[pastMonths[pastMonths.length - 1]]));
+                } else {
+                    state.activeSettings = JSON.parse(JSON.stringify(defaultMonthSettings));
+                }
+            }
+            
+            document.getElementById('header-title').innerText = state.activeSettings.shiftName || 'Jadual Syif Q';
+            document.getElementById('settings-indicator').innerText = parseInt(state.activeMonth.split('-')[1]);
+        }
+
+        // --- MODIFY & SAVE SETTINGS ---
+        // Function directly invoked from settings modal elements
+        function modifyMonthSettings(modifierFn) {
+            const cloned = JSON.parse(JSON.stringify(state.activeSettings));
+            modifierFn(cloned);
+            
+            state.monthlySettings[state.activeMonth] = cloned;
+            state.activeSettings = cloned;
+            localStorage.setItem('komez_monthly_settings', JSON.stringify(state.monthlySettings));
+            
+            document.getElementById('header-title').innerText = state.activeSettings.shiftName || 'Jadual Syif Q';
+            
+            // Re-render UI inputs instantly
+            renderSettingsModalLists();
+            
+            if (state.activeView === 'salary') renderSalary();
+        }
+
+        function saveRecords() {
             localStorage.setItem('komez_shift_records', JSON.stringify(state.records));
         }
 
         // --- BACKUP & RESTORE ---
         function exportData() {
-            const dataToExport = { version: '1.0', timestamp: new Date().toISOString(), settings: state.settings, records: state.records };
+            const dataToExport = { version: '1.1', timestamp: new Date().toISOString(), monthlySettings: state.monthlySettings, records: state.records };
             const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -382,7 +434,7 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert('Data berjaya dimuat turun (Backup selesai). Simpan fail ini di tempat selamat.');
+            alert('Data berjaya dimuat turun. Simpan fail ini di tempat selamat.');
         }
 
         function importData(event) {
@@ -392,17 +444,18 @@
             reader.onload = (e) => {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    if (importedData.settings && importedData.records) {
-                        state.settings = { ...defaultSettings, ...importedData.settings };
+                    if (importedData.monthlySettings && importedData.records) {
+                        state.monthlySettings = importedData.monthlySettings;
                         state.records = importedData.records;
-                        saveData();
-                        alert('Data berjaya dipulihkan (Restore).');
+                        localStorage.setItem('komez_monthly_settings', JSON.stringify(state.monthlySettings));
+                        saveRecords();
+                        alert('Data berjaya dipulihkan.');
                         location.reload(); 
                     } else {
                         alert('Format fail tidak sah.');
                     }
                 } catch (err) {
-                    alert('Ralat membaca fail. Pastikan ia fail backup yang sah.');
+                    alert('Ralat membaca fail.');
                 }
             };
             reader.readAsText(file);
@@ -421,7 +474,7 @@
                 vCal.classList.remove('hidden'); vSal.classList.add('hidden');
                 btnCal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-emerald-400 bg-emerald-400/10";
                 btnSal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-zinc-500";
-                document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif Q';
+                document.getElementById('header-title').innerText = state.activeSettings.shiftName || 'Jadual Syif Q';
                 document.getElementById('btn-pattern').classList.remove('hidden');
                 renderCalendar();
             } else {
@@ -430,6 +483,7 @@
                 btnCal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-zinc-500";
                 document.getElementById('header-title').innerText = "Kira Gaji";
                 document.getElementById('btn-pattern').classList.add('hidden');
+                document.getElementById('calc-month').value = state.activeMonth;
                 renderSalary();
             }
         }
@@ -438,15 +492,25 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         // --- CALENDAR LOGIC ---
-        function changeMonth(offset) {
-            state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + offset, 1);
+        function shiftMonth(offset) {
+            const [yStr, mStr] = state.activeMonth.split('-');
+            const d = new Date(parseInt(yStr), parseInt(mStr) - 1 + offset, 1);
+            state.activeMonth = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+            
+            updateActiveSettingsScope();
             renderCalendar();
+            if(state.activeView === 'salary') {
+                document.getElementById('calc-month').value = state.activeMonth;
+                renderSalary();
+            }
         }
 
         function renderCalendar() {
             if(state.activeView !== 'calendar') return;
-            const y = state.currentDate.getFullYear();
-            const m = state.currentDate.getMonth();
+            const [yStr, mStr] = state.activeMonth.split('-');
+            const y = parseInt(yStr);
+            const m = parseInt(mStr) - 1;
+            
             document.getElementById('cal-month-year').innerText = `${monthNames[m]} ${y}`;
 
             const firstDay = new Date(y, m, 1).getDay();
@@ -462,39 +526,38 @@
                 const isToday = new Date(y, m, i).toDateString() === todayStr;
                 
                 const dt = (rec.dayType || 'Biasa').toUpperCase();
-                const s = (rec.shift || '').toUpperCase();
-                const isOff = dt.includes('OFF');
-                const isRest = dt.includes('REST');
-                const isOffOrRest = isOff || isRest;
+                const shiftUpper = (rec.shift || '').toUpperCase();
+                const isOffOrRest = dt.includes('OFF') || dt.includes('REST');
 
-                let sClass = 'bg-[#1e1e1e] text-zinc-300 border-zinc-800';
-                if (isOffOrRest) {
-                    sClass = 'bg-zinc-400 text-black border-zinc-500';
-                } else if (s.startsWith('M')) {
-                    sClass = 'bg-emerald-800 text-white border-emerald-900';
-                } else if (s.startsWith('N')) {
-                    sClass = 'bg-zinc-700 text-white border-zinc-800';
-                }
+                let bgClass = 'bg-[#1e1e1e] text-zinc-300 border-zinc-800';
+                if (isOffOrRest) bgClass = 'bg-zinc-400 text-black border-zinc-500';
+                else if (shiftUpper.startsWith('M')) bgClass = 'bg-emerald-800 text-white border-emerald-900';
+                else if (shiftUpper.startsWith('N')) bgClass = 'bg-zinc-700 text-white border-zinc-800';
 
-                const todayBadge = isToday ? 'bg-rose-600 text-white rounded-full w-5 h-5 flex flex-col items-center justify-center' : 'opacity-100';
-                const otBadge = parseNum(rec.ot) > 0 ? `<span class="text-[9px] sm:text-[10px] font-normal bg-amber-400 text-black px-1.5 py-[2px] rounded-sm shadow-sm leading-none mt-0.5">${rec.ot}</span>` : '';
+                const todayBadge = isToday ? 'bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center leading-none' : '';
+                const otBadge = parseNum(rec.ot) > 0 ? `<span class="text-[10px] font-normal bg-amber-400 text-black px-1.5 py-[1px] rounded-sm shadow-sm leading-none mt-0.5">${rec.ot}</span>` : '';
                 
-                let midContent = `<span class="text-[11px] sm:text-sm font-normal uppercase tracking-wide text-center leading-none opacity-90">${isOffOrRest ? (isOff ? 'OFF' : 'REST') : s}</span>`;
-                if (isOffOrRest && s && s !== 'OFF' && s !== 'REST') {
-                    const bgBadge = s.startsWith('M') ? 'bg-emerald-700' : 'bg-zinc-800 border border-zinc-600';
-                    midContent += `<span class="text-[9px] px-1.5 py-[2px] rounded shadow-sm font-normal text-white leading-none ${bgBadge}">${s}</span>`;
+                let centerContent = '';
+                if (isOffOrRest) {
+                    centerContent += `<span class="text-sm font-normal uppercase tracking-widest text-black/70 absolute">${dt.includes('OFF') ? 'OFF' : 'REST'}</span>`;
+                    if (shiftUpper && shiftUpper !== 'OFF' && shiftUpper !== 'REST') {
+                        const bgBadge = shiftUpper.startsWith('M') ? 'bg-emerald-700' : 'bg-zinc-800 border border-zinc-600';
+                        centerContent += `<span class="text-[10px] px-1.5 py-[2px] rounded shadow-sm font-normal text-white z-20 mt-3 ${bgBadge}">${shiftUpper}</span>`;
+                    }
+                } else {
+                    centerContent = `<span class="text-[11px] sm:text-sm font-normal uppercase tracking-wide opacity-90">${shiftUpper}</span>`;
                 }
 
-                const noteBadge = rec.note ? `<div class="w-full bg-white/90 text-black text-[9px] px-1 py-0.5 rounded shadow mt-auto truncate font-normal text-center">${rec.note}</div>` : '';
+                const noteBadge = rec.note ? `<div class="mt-auto w-full bg-white text-black text-[9px] px-1 py-0.5 rounded shadow truncate font-normal text-center z-10 relative">${rec.note}</div>` : '';
 
                 html += `
-                <div onclick="openDayModal('${dateStr}')" class="relative flex flex-col p-1 sm:p-2 cursor-pointer transition min-h-[95px] sm:min-h-[110px] hover:opacity-80 active:scale-95 border ${sClass}">
-                    <div class="flex justify-between items-start w-full">
+                <div onclick="openDayModal('${dateStr}')" class="relative flex flex-col p-1 sm:p-2 cursor-pointer transition min-h-[95px] sm:min-h-[110px] hover:opacity-80 active:scale-95 border ${bgClass}">
+                    <div class="flex justify-between items-start z-10 w-full">
                         <span class="text-xs sm:text-sm font-bold ${todayBadge}">${i}</span>
                         ${otBadge}
                     </div>
-                    <div class="flex-1 flex flex-col items-center justify-center gap-1 w-full my-0.5">
-                       ${midContent}
+                    <div class="flex-1 flex flex-col items-center justify-center w-full z-10 my-1 relative">
+                       ${centerContent}
                     </div>
                     ${noteBadge}
                 </div>`;
@@ -504,18 +567,19 @@
 
         // --- SALARY & SUMMARY LOGIC ---
         function updateCalcMonth() {
-            state.calcMonth = document.getElementById('calc-month').value;
+            state.activeMonth = document.getElementById('calc-month').value;
+            updateActiveSettingsScope();
             renderSalary();
         }
 
         function renderSalary() {
             if(state.activeView !== 'salary') return;
-            const cm = state.calcMonth;
+            const cm = state.activeMonth;
             if(!cm) return;
             
-            const startC = parseNum(state.settings.cycleStart) || 1;
-            const endC = parseNum(state.settings.cycleEnd) || 31;
-            document.getElementById('calc-cycle-label').innerText = `Kitaran: ${startC}hb - ${endC}hb`;
+            const startC = parseNum(state.activeSettings.cycleStart) || 1;
+            const endC = parseNum(state.activeSettings.cycleEnd) || 31;
+            document.getElementById('calc-cycle-label').innerText = `${startC}hb sehingga ${endC}hb`;
 
             const [yStr, mStr] = cm.split('-');
             const y = parseInt(yStr), m = parseInt(mStr) - 1;
@@ -560,8 +624,8 @@
         }
 
         function calculateSummary(cycleDates) {
-            const basic = parseNum(state.settings.baseSalary);
-            const custom = parseNum(state.settings.customHourlyRate);
+            const basic = parseNum(state.activeSettings.baseSalary);
+            const custom = parseNum(state.activeSettings.customHourlyRate);
             let baseRate = (basic >= 4000 && custom > 0) ? custom : basic / 26 / 8;
 
             let totalOtAmount = 0, totalOtHours = 0, totalShiftAllowance = 0, mealNCount = 0;
@@ -584,15 +648,15 @@
 
                 if (shiftUpper && shiftUpper !== 'OFF' && shiftUpper !== 'REST') {
                     shiftCounts[shiftUpper] = (shiftCounts[shiftUpper] || 0) + 1;
-                    if (state.settings.allowances[shiftUpper] !== undefined) {
-                        totalShiftAllowance += parseNum(state.settings.allowances[shiftUpper]);
+                    if (state.activeSettings.allowances[shiftUpper] !== undefined) {
+                        totalShiftAllowance += parseNum(state.activeSettings.allowances[shiftUpper]);
                     }
                     if (shiftUpper.startsWith('N')) mealNCount++;
                 }
 
                 if (otHours > 0) {
                     totalOtHours += otHours;
-                    let dtConf = state.settings.dayTypes.find(dt => dt.name.toUpperCase() === dtUpper) || { name: 'Biasa', isTiered: false, rate: 1.5 };
+                    let dtConf = state.activeSettings.dayTypes.find(dt => dt.name.toUpperCase() === dtUpper) || { name: 'Biasa', isTiered: false, rate: 1.5 };
                     
                     if (dtConf.isTiered) {
                         const limit = parseNum(dtConf.tier1Hours) || 8;
@@ -609,12 +673,12 @@
                 }
             });
 
-            const totalMealAllowance = mealNCount * parseNum(state.settings.mealAllowance);
-            const totalExtraAllowances = (state.settings.customAllowances || []).reduce((sum, a) => sum + parseNum(a.amount), 0);
+            const totalMealAllowance = mealNCount * parseNum(state.activeSettings.mealAllowance);
+            const totalExtraAllowances = (state.activeSettings.customAllowances || []).reduce((sum, a) => sum + parseNum(a.amount), 0);
             
             totalShiftAllowance = totalShiftAllowance + totalMealAllowance + totalExtraAllowances;
             
-            const totalDeductions = state.settings.deductions.reduce((sum, d) => sum + parseNum(d.amount), 0);
+            const totalDeductions = (state.activeSettings.deductions || []).reduce((sum, d) => sum + parseNum(d.amount), 0);
             const gross = basic + totalOtAmount + totalShiftAllowance;
             const net = gross - totalDeductions;
 
@@ -630,19 +694,19 @@
 
         // --- MODALS ACTION ---
         function openDayModal(dateStr) {
-            const fbDt = state.settings.dayTypes.length > 0 ? state.settings.dayTypes[0].name : 'Biasa';
+            const fbDt = state.activeSettings.dayTypes.length > 0 ? state.activeSettings.dayTypes[0].name : 'Biasa';
             const data = state.records[dateStr] || { shift: '', dayType: fbDt, ot: '', note: '' };
             
             document.getElementById('day-modal-title').innerText = dateStr;
             document.getElementById('modal-date').value = dateStr;
             
             const selDt = document.getElementById('modal-daytype');
-            selDt.innerHTML = state.settings.dayTypes.map(dt => `<option value="${dt.name}">${dt.name}</option>`).join('');
+            selDt.innerHTML = state.activeSettings.dayTypes.map(dt => `<option value="${dt.name}">${dt.name}</option>`).join('');
             selDt.value = data.dayType || fbDt;
             
             document.getElementById('modal-shift').value = data.shift;
             document.getElementById('modal-ot').value = data.ot;
-            document.getElementById('modal-note').value = data.note;
+            document.getElementById('modal-note').value = data.note || '';
             
             openModal('day-modal');
         }
@@ -665,10 +729,10 @@
                 ot: document.getElementById('modal-ot').value,
                 note: document.getElementById('modal-note').value
             };
-            saveData();
+            saveRecords();
             closeModal('day-modal');
             renderCalendar();
-            renderSalary();
+            if(state.activeView === 'salary') renderSalary();
         }
 
         function generateShiftPattern() {
@@ -683,9 +747,9 @@
             let curr = new Date(sDate);
             const limit = new Date(eDate);
             let idx = 0;
-            const defBiasa = state.settings.dayTypes.find(d => d.name.toUpperCase()==='BIASA')?.name || 'Biasa';
-            const defOff = state.settings.dayTypes.find(d => d.name.toUpperCase()==='OFFDAY')?.name || 'Offday';
-            const defRest = state.settings.dayTypes.find(d => d.name.toUpperCase()==='RESTDAY')?.name || 'Restday';
+            const defBiasa = state.activeSettings.dayTypes.find(d => d.name.toUpperCase()==='BIASA')?.name || 'Biasa';
+            const defOff = state.activeSettings.dayTypes.find(d => d.name.toUpperCase()==='OFFDAY')?.name || 'Offday';
+            const defRest = state.activeSettings.dayTypes.find(d => d.name.toUpperCase()==='RESTDAY')?.name || 'Restday';
 
             while(curr <= limit) {
                 const dStr = getFullDateStr(curr.getFullYear(), curr.getMonth(), curr.getDate());
@@ -706,23 +770,40 @@
                 curr.setDate(curr.getDate() + 1);
                 idx++;
             }
-            saveData();
+            saveRecords();
             closeModal('pattern-modal');
-            renderCalendar(); renderSalary();
+            renderCalendar(); 
+            if(state.activeView === 'salary') renderSalary();
         }
 
-        // --- SETTINGS UI ---
+        // --- SETTINGS MODAL UI ---
+        function updateSetting(field, val) { modifyMonthSettings(s => s[field] = val); }
+        function updateAllowance(key, val) { modifyMonthSettings(s => s.allowances[key] = parseFloat(val) || 0); }
+        
+        function addDayType() { modifyMonthSettings(s => s.dayTypes.push({ id: Date.now(), name: 'Baru', isTiered: false, rate: 1.5, tier1Hours: 8, tier1Rate: 2.0, tier2Rate: 3.0 })); }
+        function updateDayType(id, field, val) { modifyMonthSettings(s => { const dt = s.dayTypes.find(x => x.id === id); if(dt) { dt[field] = (field === 'isTiered') ? val : val; }}); }
+        function removeDayType(id) { modifyMonthSettings(s => { s.dayTypes = s.dayTypes.filter(x => x.id !== id); }); }
+        
+        function addCustomAllowance() { modifyMonthSettings(s => s.customAllowances.push({ id: Date.now(), name: '', amount: '' })); }
+        function updateCustomAllowance(id, field, val) { modifyMonthSettings(s => { const a = s.customAllowances.find(x => x.id === id); if(a) a[field] = val; }); }
+        function removeCustomAllowance(id) { modifyMonthSettings(s => { s.customAllowances = s.customAllowances.filter(x => x.id !== id); }); }
+
+        function addDeduction() { modifyMonthSettings(s => s.deductions.push({ id: Date.now(), name: '', amount: '' })); }
+        function updateDeduction(id, field, val) { modifyMonthSettings(s => { const d = s.deductions.find(x => x.id === id); if(d) d[field] = val; }); }
+        function removeDeduction(id) { modifyMonthSettings(s => { s.deductions = s.deductions.filter(x => x.id !== id); }); }
+
         function openSettings() {
-            document.getElementById('set-shiftname').value = state.settings.shiftName || '';
-            document.getElementById('set-basic').value = state.settings.baseSalary;
-            document.getElementById('set-startcycle').value = state.settings.cycleStart;
-            document.getElementById('set-endcycle').value = state.settings.cycleEnd;
-            document.getElementById('set-meal').value = state.settings.mealAllowance;
+            document.getElementById('settings-modal-month').innerText = `UNTUK: ${state.activeMonth}`;
+            document.getElementById('settings-warning-text').innerText = `Tetapan ini HANYA digunakan untuk kitaran gaji bulan ${state.activeMonth}. Rekod bulan lain tidak akan terjejas.`;
+            
+            document.getElementById('set-shiftname').value = state.activeSettings.shiftName || '';
+            document.getElementById('set-basic').value = state.activeSettings.baseSalary;
+            document.getElementById('set-startcycle').value = state.activeSettings.cycleStart;
+            document.getElementById('set-endcycle').value = state.activeSettings.cycleEnd;
+            document.getElementById('set-meal').value = state.activeSettings.mealAllowance;
             updateCustomRateUI();
-            renderSetDayTypes();
-            renderSetAllowances();
-            renderSetCustomAllowances();
-            renderSetDeductions();
+            
+            renderSettingsModalLists();
             openModal('settings-modal');
         }
 
@@ -731,108 +812,82 @@
             const crInp = document.getElementById('set-customrate');
             if (basic >= 4000) {
                 crInp.readOnly = false;
-                crInp.value = state.settings.customHourlyRate || (basic/26/8).toFixed(2);
+                crInp.value = state.activeSettings.customHourlyRate || (basic/26/8).toFixed(2);
                 crInp.classList.remove('bg-[#121212]', 'border-zinc-800', 'text-zinc-500');
-                crInp.classList.add('bg-zinc-900', 'border-zinc-700', 'focus:border-emerald-500');
+                crInp.classList.add('bg-zinc-900', 'border-zinc-700', 'text-white', 'focus:border-emerald-500');
             } else {
                 crInp.readOnly = true;
                 crInp.value = (basic/26/8).toFixed(2);
                 crInp.classList.add('bg-[#121212]', 'border-zinc-800', 'text-zinc-500');
-                crInp.classList.remove('bg-zinc-900', 'border-zinc-700', 'focus:border-emerald-500');
+                crInp.classList.remove('bg-zinc-900', 'border-zinc-700', 'text-white', 'focus:border-emerald-500');
             }
         }
 
-        function renderSetDayTypes() {
-            const div = document.getElementById('settings-daytypes');
-            div.innerHTML = state.settings.dayTypes.map(dt => `
+        function renderSettingsModalLists() {
+            // DayTypes
+            const dtDiv = document.getElementById('settings-daytypes');
+            dtDiv.innerHTML = state.activeSettings.dayTypes.map(dt => `
                 <div class="bg-zinc-900/80 p-3 rounded-lg border border-zinc-800 space-y-3">
                     <div class="flex gap-2 items-center">
-                        <input type="text" value="${dt.name}" onchange="updateSetDayType(${dt.id}, 'name', this.value)" placeholder="Nama" class="flex-1 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm font-normal outline-none focus:border-amber-500" />
-                        <button onclick="removeSetDayType(${dt.id})" class="p-1.5 text-rose-500 bg-rose-500/10 rounded hover:bg-rose-500/20">🗑️</button>
+                        <input type="text" value="${dt.name}" onchange="updateDayType(${dt.id}, 'name', this.value)" class="flex-1 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm font-normal outline-none focus:border-amber-500" />
+                        <button onclick="removeDayType(${dt.id})" class="p-1.5 text-rose-500 bg-rose-500/10 rounded">🗑️</button>
                     </div>
                     <div class="flex items-center gap-2 px-1">
                        <label class="text-[11px] text-zinc-400 flex items-center gap-2 cursor-pointer font-normal">
-                         <input type="checkbox" ${dt.isTiered ? 'checked' : ''} onchange="updateSetDayType(${dt.id}, 'isTiered', this.checked)" class="accent-amber-500" />
+                         <input type="checkbox" ${dt.isTiered ? 'checked' : ''} onchange="updateDayType(${dt.id}, 'isTiered', this.checked)" class="accent-amber-500" />
                          Kadar Bertingkat (Tiered)?
                        </label>
                     </div>
                     ${!dt.isTiered ? `
                        <div class="flex items-center gap-2 px-1">
                           <span class="text-xs text-zinc-500 uppercase">Kadar OT:</span>
-                          <input type="number" step="0.5" value="${dt.rate}" onchange="updateSetDayType(${dt.id}, 'rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-center outline-none focus:border-amber-500 font-normal" />
+                          <input type="number" step="0.5" value="${dt.rate}" onchange="updateDayType(${dt.id}, 'rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none focus:border-amber-500 font-normal" />
                           <span class="text-xs text-zinc-500 uppercase">x Asas</span>
                        </div>
                     ` : `
                        <div class="flex flex-col gap-2 bg-[#121212] p-2.5 rounded border border-zinc-800">
                           <div class="flex items-center gap-2">
-                            <input type="number" value="${dt.tier1Hours}" onchange="updateSetDayType(${dt.id}, 'tier1Hours', this.value)" class="w-12 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-center outline-none font-normal" />
-                            <span class="text-[10px] text-zinc-500 leading-tight font-normal">jam pertama<br/>dengan kadar</span>
-                            <input type="number" step="0.5" value="${dt.tier1Rate}" onchange="updateSetDayType(${dt.id}, 'tier1Rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-center outline-none font-normal" />
+                            <input type="number" value="${dt.tier1Hours}" onchange="updateDayType(${dt.id}, 'tier1Hours', this.value)" class="w-12 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none font-normal" />
+                            <span class="text-[10px] text-zinc-500 leading-tight font-normal">jam pertama (Kadar:</span>
+                            <input type="number" step="0.5" value="${dt.tier1Rate}" onchange="updateDayType(${dt.id}, 'tier1Rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none font-normal" />)
                           </div>
                           <div class="flex items-center gap-2 pt-1 border-t border-zinc-800/50">
-                            <span class="text-[10px] text-zinc-500 flex-1 font-normal">Baki jam seterusnya<br/>dengan kadar</span>
-                            <input type="number" step="0.5" value="${dt.tier2Rate}" onchange="updateSetDayType(${dt.id}, 'tier2Rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-center outline-none font-normal" />
+                            <span class="text-[10px] text-zinc-500 flex-1 font-normal">Baki jam (Kadar:</span>
+                            <input type="number" step="0.5" value="${dt.tier2Rate}" onchange="updateDayType(${dt.id}, 'tier2Rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none font-normal" />)
                           </div>
                        </div>
                     `}
                 </div>
             `).join('');
-        }
-        function addDayType() { state.settings.dayTypes.push({ id: Date.now(), name: 'Baru', isTiered: false, rate: 1.5, tier1Hours: 8, tier1Rate: 2.0, tier2Rate: 3.0 }); renderSetDayTypes(); }
-        function updateSetDayType(id, field, val) { const dt = state.settings.dayTypes.find(d => d.id === id); if(dt) dt[field] = val; if(field === 'isTiered') renderSetDayTypes(); }
-        function removeSetDayType(id) { state.settings.dayTypes = state.settings.dayTypes.filter(d => d.id !== id); renderSetDayTypes(); }
 
-        function renderSetAllowances() {
-            const div = document.getElementById('settings-allowances');
-            div.innerHTML = Object.keys(state.settings.allowances).map(k => `
+            // Allowances
+            const alDiv = document.getElementById('settings-allowances');
+            alDiv.innerHTML = Object.keys(state.activeSettings.allowances).map(k => `
                 <div>
                     <label class="text-[10px] text-zinc-400 uppercase font-bold">${k}</label>
-                    <input type="number" value="${state.settings.allowances[k]}" onchange="state.settings.allowances['${k}'] = this.value" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-center font-normal outline-none focus:border-cyan-500" />
+                    <input type="number" value="${state.activeSettings.allowances[k]}" onchange="updateAllowance('${k}', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white text-center font-normal outline-none focus:border-cyan-500" />
                 </div>
             `).join('');
-        }
 
-        function renderSetCustomAllowances() {
-            const div = document.getElementById('settings-custom-allowances');
-            if(!state.settings.customAllowances) state.settings.customAllowances = [];
-            div.innerHTML = state.settings.customAllowances.map(a => `
+            // Custom Allowances
+            const calDiv = document.getElementById('settings-custom-allowances');
+            calDiv.innerHTML = (state.activeSettings.customAllowances || []).map(a => `
                 <div class="flex gap-2 bg-zinc-900 p-2 rounded border border-zinc-800 items-center">
-                    <input type="text" value="${a.name}" onchange="updateCustomAllowance(${a.id}, 'name', this.value)" placeholder="Nama Elaun" class="flex-1 bg-transparent text-sm outline-none px-2 focus:text-blue-400 font-normal" />
-                    <input type="number" value="${a.amount}" onchange="updateCustomAllowance(${a.id}, 'amount', this.value)" placeholder="RM" class="w-24 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-right outline-none font-normal" />
-                    <button onclick="removeCustomAllowance(${a.id})" class="p-2 text-rose-500 bg-rose-500/10 rounded hover:bg-rose-500/20">🗑️</button>
+                    <input type="text" value="${a.name}" onchange="updateCustomAllowance(${a.id}, 'name', this.value)" placeholder="Nama Elaun" class="flex-1 bg-transparent text-white text-sm outline-none px-2 focus:text-blue-400 font-normal" />
+                    <input type="number" value="${a.amount}" onchange="updateCustomAllowance(${a.id}, 'amount', this.value)" placeholder="RM" class="w-24 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-right outline-none font-normal" />
+                    <button onclick="removeCustomAllowance(${a.id})" class="p-2 text-rose-500 bg-rose-500/10 rounded">🗑️</button>
                 </div>
             `).join('');
-        }
-        function addCustomAllowance() { if(!state.settings.customAllowances) state.settings.customAllowances = []; state.settings.customAllowances.push({ id: Date.now(), name: '', amount: '' }); renderSetCustomAllowances(); }
-        function updateCustomAllowance(id, field, val) { const a = state.settings.customAllowances.find(x => x.id === id); if(a) a[field] = val; }
-        function removeCustomAllowance(id) { state.settings.customAllowances = state.settings.customAllowances.filter(x => x.id !== id); renderSetCustomAllowances(); }
 
-        function renderSetDeductions() {
-            const div = document.getElementById('settings-deductions');
-            div.innerHTML = state.settings.deductions.map(d => `
+            // Deductions
+            const dedDiv = document.getElementById('settings-deductions');
+            dedDiv.innerHTML = (state.activeSettings.deductions || []).map(d => `
                 <div class="flex gap-2 bg-zinc-900 p-2 rounded border border-zinc-800 items-center">
-                    <input type="text" value="${d.name}" onchange="updateDed(${d.id}, 'name', this.value)" placeholder="Nama Potongan" class="flex-1 bg-transparent text-sm outline-none px-2 focus:text-rose-400 font-normal" />
-                    <input type="number" value="${d.amount}" onchange="updateDed(${d.id}, 'amount', this.value)" placeholder="RM" class="w-24 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-right outline-none font-normal" />
-                    <button onclick="removeDed(${d.id})" class="p-2 text-rose-500 bg-rose-500/10 rounded hover:bg-rose-500/20">🗑️</button>
+                    <input type="text" value="${d.name}" onchange="updateDeduction(${d.id}, 'name', this.value)" placeholder="Nama Potongan" class="flex-1 bg-transparent text-white text-sm outline-none px-2 focus:text-rose-400 font-normal" />
+                    <input type="number" value="${d.amount}" onchange="updateDeduction(${d.id}, 'amount', this.value)" placeholder="RM" class="w-24 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-right outline-none font-normal" />
+                    <button onclick="removeDeduction(${d.id})" class="p-2 text-rose-500 bg-rose-500/10 rounded">🗑️</button>
                 </div>
             `).join('');
-        }
-        function addDeduction() { state.settings.deductions.push({ id: Date.now(), name: '', amount: '' }); renderSetDeductions(); }
-        function updateDed(id, field, val) { const d = state.settings.deductions.find(x => x.id === id); if(d) d[field] = val; }
-        function removeDed(id) { state.settings.deductions = state.settings.deductions.filter(x => x.id !== id); renderSetDeductions(); }
-
-        function saveAndCloseSettings() {
-            state.settings.shiftName = document.getElementById('set-shiftname').value;
-            state.settings.baseSalary = document.getElementById('set-basic').value;
-            state.settings.cycleStart = document.getElementById('set-startcycle').value;
-            state.settings.cycleEnd = document.getElementById('set-endcycle').value;
-            state.settings.mealAllowance = document.getElementById('set-meal').value;
-            if (parseNum(state.settings.baseSalary) >= 4000) state.settings.customHourlyRate = document.getElementById('set-customrate').value;
-            
-            saveData();
-            closeModal('settings-modal');
-            document.getElementById('header-title').innerText = state.settings.shiftName || 'Jadual Syif Q';
-            renderSalary(); 
         }
 
         // --- BREAKDOWN MODAL ---
@@ -856,18 +911,18 @@
                 html += `<div class="flex justify-between items-center text-sm uppercase tracking-wide font-normal border-t border-zinc-800 pt-3 mt-1 text-amber-400"><span>Jumlah OT</span><span>${formatRM(sum.totalOtAmount)}</span></div>`;
             } else {
                 html += `<h4 class="text-[10px] text-zinc-500 uppercase border-b border-zinc-800 pb-1">Elaun Syif & Meal</h4>`;
-                Object.keys(state.settings.allowances).forEach(k => {
+                Object.keys(state.activeSettings.allowances).forEach(k => {
                     const count = sum.shiftCounts[k] || 0;
-                    const rate = parseNum(state.settings.allowances[k]);
+                    const rate = parseNum(state.activeSettings.allowances[k]);
                     if (count > 0) html += `<div class="flex justify-between items-center text-sm pl-2"><span class="text-zinc-300">Syif ${k} (${count} x ${formatRM(rate)})</span><span class="font-normal text-cyan-400">${formatRM(count * rate)}</span></div>`;
                 });
                 if (sum.mealNCount > 0) {
-                    html += `<div class="flex justify-between items-center text-sm pl-2 mt-1"><span class="text-zinc-300">Elaun Meal N (${sum.mealNCount} x ${formatRM(state.settings.mealAllowance)})</span><span class="font-normal text-cyan-400">${formatRM(sum.totalMealAllowance)}</span></div>`;
+                    html += `<div class="flex justify-between items-center text-sm pl-2 mt-1"><span class="text-zinc-300">Elaun Meal N (${sum.mealNCount} x ${formatRM(state.activeSettings.mealAllowance)})</span><span class="font-normal text-cyan-400">${formatRM(sum.totalMealAllowance)}</span></div>`;
                 }
 
-                if (state.settings.customAllowances && state.settings.customAllowances.length > 0) {
+                if (state.activeSettings.customAllowances && state.activeSettings.customAllowances.length > 0) {
                     html += `<h4 class="text-[10px] text-zinc-500 uppercase border-b border-zinc-800 pb-1 mt-4 pt-2">Elaun Tambahan Bulanan</h4>`;
-                    state.settings.customAllowances.forEach(a => {
+                    state.activeSettings.customAllowances.forEach(a => {
                         const amt = parseNum(a.amount);
                         if (amt > 0) html += `<div class="flex justify-between items-center text-sm pl-2"><span class="text-zinc-300">${a.name}</span><span class="font-normal text-cyan-400">${formatRM(amt)}</span></div>`;
                     });
