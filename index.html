@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a1c">
     <title>Sistem Gaji & Syif Pro</title>
+    <!-- Sambungan ke Manifest untuk WebAPK -->
+    <link rel="manifest" href="manifest.json">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* Sembunyikan scrollbar untuk paparan kemas */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
         .hidden { display: none !important; }
@@ -28,22 +30,24 @@
                 <h1 id="header-title" class="text-lg sm:text-xl font-normal bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent truncate leading-tight">
                     Jadual Syif
                 </h1>
-                <span class="text-[10px] text-zinc-400 tracking-widest font-normal mt-0.5">
-                    Made by KoMeZ
-                </span>
+                <span class="text-[10px] text-zinc-400 tracking-widest font-normal mt-0.5">Made by KoMeZ</span>
             </div>
-            <div class="flex gap-3 items-center">
+            <div class="flex gap-2.5 items-center">
+                <!-- Butang Install App (Muncul automatik bila sedia) -->
+                <button id="btn-install" onclick="installPWA()" class="hidden px-2.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-normal shadow transition-colors flex items-center gap-1">
+                    📲 Install
+                </button>
                 <button id="btn-pattern" onclick="openModal('pattern-modal')" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-cyan-400 shadow transition-colors">🪄</button>
                 <button onclick="openSettings()" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 shadow transition-colors relative">
                     ⚙️
-                    <span id="header-month-badge" class="absolute -top-1 -right-1 bg-rose-600 text-white text-[8px] rounded px-1"></span>
+                    <span id="header-month-badge" class="absolute -top-1 -right-1 bg-rose-600 text-white text-[9px] rounded-full px-1.5 py-0.2 font-bold"></span>
                 </button>
             </div>
         </header>
 
         <main class="max-w-4xl mx-auto p-2 sm:p-4">
             
-            <!-- ================= VIEW: CALENDAR ================= -->
+            <!-- VIEW: CALENDAR -->
             <div id="view-calendar">
                 <div class="flex flex-col bg-[#1a1a1c] border border-zinc-800 rounded-xl overflow-hidden shadow-lg mt-2">
                     <div class="flex justify-between items-center p-4 bg-zinc-900/80">
@@ -62,7 +66,7 @@
                 </div>
             </div>
 
-            <!-- ================= VIEW: SALARY ================= -->
+            <!-- VIEW: SALARY -->
             <div id="view-salary" class="hidden space-y-4 mt-2">
                 <div class="bg-[#1a1a1c] p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-2">
                     <div class="flex justify-between items-center">
@@ -212,7 +216,7 @@
     <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex flex-col justify-end sm:justify-center items-center sm:p-4 backdrop-blur-sm">
         <div class="bg-[#1a1a1c] w-full sm:max-w-md h-[90vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl border border-zinc-700 flex flex-col shadow-2xl">
             <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center shrink-0">
-                <h3 id="settings-title" class="font-normal text-sm text-white flex items-center gap-2">
+                <h3 class="font-normal text-sm text-white flex items-center gap-2">
                     ⚙️ Tetapan <span id="settings-badge" class="bg-rose-600 text-[10px] px-2 py-0.5 rounded shadow"></span>
                 </h3>
                 <button onclick="saveAndCloseSettings()" class="p-1 text-xl">❌</button>
@@ -360,6 +364,31 @@
         const getFullDateStr = (y, m, d) => `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
         const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
+        // --- PWA / WEBAPK INSTALL HANDLER ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btnInstall = document.getElementById('btn-install');
+            if (btnInstall) btnInstall.classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('btn-install').classList.add('hidden');
+            }
+            deferredPrompt = null;
+        }
+
+        window.addEventListener('appinstalled', () => {
+            const btnInstall = document.getElementById('btn-install');
+            if (btnInstall) btnInstall.classList.add('hidden');
+            deferredPrompt = null;
+        });
+
         // --- INIT ---
         window.onload = () => {
             try {
@@ -370,7 +399,7 @@
                 if (savedRecords) state.records = JSON.parse(savedRecords);
             } catch (e) { console.error(e); }
 
-            getActiveSettings(); // Ensure settings inherited
+            getActiveSettings();
 
             const d = new Date();
             document.getElementById('calc-month').value = state.activeMonth;
@@ -405,7 +434,10 @@
         function refreshApp() {
             const actSet = getActiveSettings();
             document.getElementById('header-title').innerText = actSet.shiftName || 'Jadual Syif Q';
-            document.getElementById('header-month-badge').innerText = `UNTUK: ${state.activeMonth}`;
+            
+            const monthNum = state.activeMonth.split('-')[1];
+            document.getElementById('header-month-badge').innerText = parseInt(monthNum);
+            
             document.getElementById('calc-month').value = state.activeMonth;
             
             renderCalendar();
@@ -420,7 +452,7 @@
             localStorage.setItem('komez_shift_records', JSON.stringify(state.records));
         }
 
-        // --- SWIPE GESTURE (THE FIX) ---
+        // --- SWIPE GESTURE ---
         function setupSwipeGesture() {
             const container = document.getElementById('view-calendar');
             let touchStart = null;
@@ -438,12 +470,12 @@
             container.addEventListener('touchend', () => {
                 if (!touchStart || !touchEnd) return;
                 const distance = touchStart - touchEnd;
-                const limit = 50; // Minimum swipe distance in pixels
+                const limit = 50;
                 
                 if (distance > limit) {
-                    shiftMonth(1); // Swipe Left -> Bulan Depan
+                    shiftMonth(1); 
                 } else if (distance < -limit) {
-                    shiftMonth(-1); // Swipe Right -> Bulan Lepas
+                    shiftMonth(-1); 
                 }
             }, {passive: true});
         }
@@ -814,7 +846,7 @@
         function openSettings() {
             const actSet = getActiveSettings();
             
-            document.getElementById('settings-badge').innerText = state.activeMonth;
+            document.getElementById('settings-badge').innerText = `UNTUK: ${state.activeMonth}`;
             document.getElementById('settings-note').innerText = `Semua tetapan ini HANYA digunakan untuk kitaran gaji bulan ${state.activeMonth}. Rekod bulan lain tidak akan terjejas.`;
             
             document.getElementById('set-shiftname').value = actSet.shiftName || '';
@@ -986,6 +1018,12 @@
             openModal('breakdown-modal');
         }
 
+        // --- DAFTAR SERVICE WORKER ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+            });
+        }
     </script>
 </body>
 </html>
