@@ -5,341 +5,366 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a1c">
     <title>Sistem Gaji & Syif Pro</title>
-    <!-- Sambungan ke Manifest untuk WebAPK -->
+    
+    <!-- PWA Manifest link -->
     <link rel="manifest" href="manifest.json">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
-        .hidden { display: none !important; }
+        @keyframes kfFadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes kfSlideUp { from { opacity: 0; transform: translateY(28px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes kfPopIn { 0% { opacity: 0; transform: scale(.85) } 60% { transform: scale(1.03) } 100% { opacity: 1; transform: scale(1) } }
+        @keyframes kfPulseRed { 0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,.55) } 50% { box-shadow: 0 0 0 6px rgba(244,63,94,0) } }
+        @keyframes kfShimmer { 0% { background-position: -200% center } 100% { background-position: 200% center } }
+        @keyframes kfSpin { to { transform: rotate(360deg) } }
+        @keyframes kfSlideFromRight { from { opacity: 0; transform: translateX(60px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes kfSlideFromLeft { from { opacity: 0; transform: translateX(-60px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes kfMonthIn { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: translateY(0) } }
+        
+        .anim-fadeIn { animation: kfFadeIn .22s ease-out both; }
+        .anim-slideUp { animation: kfSlideUp .34s cubic-bezier(.16,1,.3,1) both; }
+        .anim-popIn { animation: kfPopIn .36s cubic-bezier(.34,1.56,.64,1) both; }
+        .anim-slideRight { animation: kfSlideFromRight .38s cubic-bezier(.16,1,.3,1); }
+        .anim-slideLeft  { animation: kfSlideFromLeft .38s cubic-bezier(.16,1,.3,1); }
+        .anim-monthIn { animation: kfMonthIn .3s ease-out both; }
+        .pulse-red { animation: kfPulseRed 2.4s ease-in-out infinite; }
+        .title-shimmer { background-size: 200% auto; animation: kfShimmer 7s linear infinite; }
+        .spinner { animation: kfSpin .7s linear infinite; }
+        .glass-header { backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
+        .tnum { font-variant-numeric: tabular-nums; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(113,113,122,.3); border-radius: 4px; }
         body { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-[#121212] text-zinc-100 font-sans pb-24 min-h-screen selection:bg-emerald-500/30">
+<body class="bg-[#0f0f10] text-zinc-100 font-sans pb-24 selection:bg-emerald-500/30">
 
-    <div id="loading-screen" class="min-h-screen bg-[#121212] flex items-center justify-center text-emerald-400 font-normal text-sm z-50 fixed inset-0">
-        MEMUAT...
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="bg-[#0f0f10] min-h-screen flex items-center justify-center fixed inset-0 z-50">
+        <div class="flex flex-col items-center gap-3">
+            <div class="w-9 h-9 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 spinner"></div>
+            <span class="text-emerald-400/80 text-[10px] tracking-[0.2em] uppercase font-medium">Memuat</span>
+        </div>
     </div>
 
+    <!-- MAIN APP CONTAINER -->
     <div id="app-container" class="hidden">
         <!-- HEADER -->
-        <header class="bg-[#1a1a1c] border-b border-zinc-800 p-4 sticky top-0 z-30 flex justify-between items-center shadow-md">
-            <div class="flex flex-col">
-                <h1 id="header-title" class="text-lg sm:text-xl font-normal bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent truncate leading-tight">
-                    Jadual Syif
+        <header class="glass-header bg-[#1a1a1c]/80 border-b border-zinc-800/70 px-4 py-3 sticky top-0 z-30 flex justify-between items-center shadow-lg shadow-black/20">
+            <div class="flex flex-col min-w-0">
+                <h1 id="header-title" class="text-base sm:text-lg font-semibold bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] title-shimmer bg-clip-text text-transparent truncate leading-tight tracking-tight">
+                    Jadual Syif Q
                 </h1>
-                <span class="text-[10px] text-zinc-400 tracking-widest font-normal mt-0.5">Made by KoMeZ</span>
+                <span class="text-[9px] text-zinc-500 tracking-[0.2em] font-medium mt-0.5">MADE BY KOMEZ</span>
             </div>
-            <div class="flex gap-2.5 items-center">
-                <!-- Butang Install App (Muncul automatik bila sedia) -->
-                <button id="btn-install" onclick="installPWA()" class="hidden px-2.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-normal shadow transition-colors flex items-center gap-1">
+            <div class="flex gap-2 items-center shrink-0">
+                <!-- INSTALL PWA BUTTON -->
+                <button id="btn-install" onclick="installPWA()" class="hidden px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow transition-all items-center gap-1">
                     📲 Install
                 </button>
-                <button id="btn-pattern" onclick="openModal('pattern-modal')" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-cyan-400 shadow transition-colors">🪄</button>
-                <button onclick="openSettings()" class="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 shadow transition-colors relative">
+                <button id="btn-pattern" onclick="openModal('pattern-modal')" class="w-9 h-9 bg-zinc-800/80 hover:bg-zinc-700 active:scale-90 rounded-lg text-cyan-400 transition-all shadow-sm flex items-center justify-center text-sm">🪄</button>
+                <button onclick="openSettings()" class="w-9 h-9 bg-zinc-800/80 hover:bg-zinc-700 active:scale-90 rounded-lg text-zinc-300 transition-all shadow-sm relative flex items-center justify-center text-sm">
                     ⚙️
-                    <span id="header-month-badge" class="absolute -top-1 -right-1 bg-rose-600 text-white text-[9px] rounded-full px-1.5 py-0.2 font-bold"></span>
+                    <span id="header-month-badge" class="absolute -top-1 -right-1 bg-rose-600 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center font-semibold shadow tnum">11</span>
                 </button>
             </div>
         </header>
 
         <main class="max-w-4xl mx-auto p-2 sm:p-4">
-            
-            <!-- VIEW: CALENDAR -->
-            <div id="view-calendar">
-                <div class="flex flex-col bg-[#1a1a1c] border border-zinc-800 rounded-xl overflow-hidden shadow-lg mt-2">
-                    <div class="flex justify-between items-center p-4 bg-zinc-900/80">
-                        <button onclick="shiftMonth(-1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👈</button>
+
+            <!-- CALENDAR VIEW -->
+            <div id="view-calendar" class="anim-fadeIn">
+                <div class="flex flex-col bg-[#1a1a1c] border border-zinc-800/70 rounded-2xl overflow-hidden shadow-xl shadow-black/20 mt-2">
+                    <div class="flex justify-between items-center px-3 py-3 bg-gradient-to-r from-zinc-900 to-zinc-900/40">
+                        <button onclick="shiftMonth(-1)" class="w-9 h-9 bg-zinc-800/70 hover:bg-zinc-700 active:scale-90 rounded-full flex items-center justify-center transition-all text-sm">👈</button>
                         <div class="text-center">
-                            <h2 id="cal-month-year" class="text-sm font-normal tracking-widest uppercase text-white leading-tight"></h2>
+                            <h2 id="cal-month-title" class="text-xs font-semibold tracking-[0.15em] uppercase text-white leading-tight tnum anim-monthIn">NOV 2026</h2>
+                            <div class="h-0.5 w-8 mx-auto mt-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full"></div>
                         </div>
-                        <button onclick="shiftMonth(1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👉</button>
+                        <button onclick="shiftMonth(1)" class="w-9 h-9 bg-zinc-800/70 hover:bg-zinc-700 active:scale-90 rounded-full flex items-center justify-center transition-all text-sm">👉</button>
                     </div>
-                    
-                    <div class="grid grid-cols-7 text-center py-2 bg-zinc-900 border-b border-zinc-800 text-[10px] sm:text-xs font-normal text-zinc-500 uppercase">
+
+                    <div class="grid grid-cols-7 text-center py-1.5 bg-zinc-900/50 text-[9px] sm:text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                         <div>Ahad</div><div>Isnin</div><div>Selasa</div><div>Rabu</div><div>Khamis</div><div>Jumaat</div><div>Sabtu</div>
                     </div>
-                    
-                    <div id="calendar-grid" class="grid grid-cols-7 auto-rows-fr gap-[1px] bg-zinc-800"></div>
+
+                    <div class="overflow-hidden">
+                        <div id="calendar-grid" class="grid grid-cols-7 auto-rows-fr gap-1 p-1.5"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- VIEW: SALARY -->
-            <div id="view-salary" class="hidden space-y-4 mt-2">
-                <div class="bg-[#1a1a1c] p-4 rounded-xl border border-zinc-800 shadow-md flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
-                        <h2 class="font-normal text-emerald-400 text-sm uppercase">Kitaran (Bulanan)</h2>
-                        <input type="month" id="calc-month" onchange="updateCalcMonth()" class="bg-zinc-800 border border-zinc-700 text-sm p-1.5 rounded outline-none text-white font-normal focus:border-emerald-500" />
+            <!-- SALARY VIEW -->
+            <div id="view-salary" class="hidden space-y-3 mt-2 anim-fadeIn">
+                <div class="bg-[#1a1a1c] p-3 rounded-xl border border-zinc-800/70 shadow-lg shadow-black/20 flex flex-col gap-1.5">
+                    <div class="flex justify-between items-center gap-2">
+                        <h2 class="font-semibold text-emerald-400 text-xs uppercase tracking-wider">Kitaran</h2>
+                        <input type="month" id="calc-month" onchange="updateCalcMonth(this.value)" class="bg-zinc-900 border border-zinc-700 text-xs px-2 py-1 rounded-md outline-none text-white focus:border-emerald-500 transition-colors" />
                     </div>
-                    <p id="calc-cycle-desc" class="text-[10px] text-zinc-500 uppercase"></p>
+                    <p id="calc-cycle-desc" class="text-[10px] text-zinc-500 uppercase tracking-wide">20hb – 19hb</p>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-zinc-800 shadow-md bg-[#1a1a1c]">
-                    <table class="w-full border-collapse text-sm font-normal">
+                <div class="overflow-x-auto rounded-xl border border-zinc-800/70 shadow-lg shadow-black/20 bg-[#1a1a1c]">
+                    <table class="w-full border-collapse text-sm">
                         <thead>
-                            <tr class="bg-zinc-900 text-zinc-400 uppercase text-[10px] tracking-wide text-left">
-                                <th class="p-3 border-b border-zinc-800 font-normal">Tarikh</th>
-                                <th class="p-3 border-b border-zinc-800 font-normal text-center">Jenis</th>
-                                <th class="p-3 border-b border-zinc-800 font-normal text-center">Syif</th>
-                                <th class="p-3 border-b border-zinc-800 font-normal text-center">OT</th>
-                                <th class="p-3 border-b border-zinc-800 font-normal">Nota</th>
+                            <tr class="bg-zinc-900/80 text-zinc-500 uppercase text-[9px] tracking-wider text-left">
+                                <th class="p-2.5 border-b border-zinc-800/70 font-semibold">Tarikh</th>
+                                <th class="p-2.5 border-b border-zinc-800/70 font-semibold text-center">Jenis</th>
+                                <th class="p-2.5 border-b border-zinc-800/70 font-semibold text-center">Syif</th>
+                                <th class="p-2.5 border-b border-zinc-800/70 font-semibold text-center">OT</th>
+                                <th class="p-2.5 border-b border-zinc-800/70 font-semibold">Nota</th>
                             </tr>
                         </thead>
-                        <tbody id="salary-tbody" class="divide-y divide-zinc-800/50"></tbody>
+                        <tbody id="salary-tbody" class="divide-y divide-zinc-800/40"></tbody>
                     </table>
                 </div>
 
-                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-xl">
-                    <h3 class="text-white font-normal mb-4 border-b border-zinc-800 pb-2 text-sm uppercase">Ringkasan Gaji</h3>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                        <div class="bg-[#121212] rounded p-3 border border-zinc-800">
-                            <span class="text-[10px] text-zinc-500 uppercase block mb-1">Gaji Asas</span>
-                            <span id="sum-basic" class="text-sm font-normal text-white"></span>
+                <div class="bg-gradient-to-br from-zinc-900 to-[#1a1a1c] border border-zinc-800/70 rounded-xl p-4 shadow-xl shadow-black/30">
+                    <h3 class="text-white font-semibold mb-3 border-b border-zinc-800/70 pb-2 text-xs uppercase tracking-wider">Ringkasan Gaji</h3>
+
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-zinc-950/60 rounded-lg p-2.5 border border-zinc-800/60">
+                            <span class="text-[8px] sm:text-[9px] text-zinc-500 uppercase block mb-0.5 tracking-wide">Asas</span>
+                            <span id="sum-basic" class="text-[10px] sm:text-xs font-semibold text-white tnum">RM 0.00</span>
                         </div>
-                        <div onclick="openBreakdownModal('allowance')" class="bg-[#121212] rounded p-3 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition active:scale-95 group">
-                            <span class="text-[9px] sm:text-[10px] text-zinc-500 uppercase flex items-center justify-between mb-1">
-                                Semua Elaun <span class="group-hover:text-emerald-400 transition" title="👆 Klik untuk perincian">🔍</span>
-                            </span>
-                            <span id="sum-allowance" class="text-sm font-normal text-cyan-400"></span>
-                            <div class="text-[8px] text-zinc-600 mt-1 italic leading-tight">👆 Klik untuk perincian</div>
+                        <div onclick="openBreakdownModal('allowance')" class="bg-zinc-950/60 rounded-lg p-2.5 border border-zinc-800/60 cursor-pointer hover:border-cyan-500/50 hover:bg-zinc-900 transition-all active:scale-95">
+                            <span class="text-[8px] sm:text-[9px] text-zinc-500 uppercase block mb-0.5 tracking-wide">Elaun 🔍</span>
+                            <span id="sum-allowance" class="text-[10px] sm:text-xs font-semibold text-cyan-400 tnum">RM 0.00</span>
                         </div>
-                        <div onclick="openBreakdownModal('ot')" class="bg-[#121212] rounded p-3 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition active:scale-95 group">
-                            <span class="text-[9px] sm:text-[10px] text-zinc-500 uppercase flex items-center justify-between mb-1">
-                                Bayaran OT <span class="group-hover:text-emerald-400 transition" title="👆 Klik untuk perincian">🔍</span>
-                            </span>
-                            <span id="sum-ot" class="text-sm font-normal text-amber-400"></span>
-                            <div class="text-[8px] text-zinc-600 mt-1 italic leading-tight">👆 Klik untuk perincian</div>
+                        <div onclick="openBreakdownModal('ot')" class="bg-zinc-950/60 rounded-lg p-2.5 border border-zinc-800/60 cursor-pointer hover:border-amber-500/50 hover:bg-zinc-900 transition-all active:scale-95">
+                            <span class="text-[8px] sm:text-[9px] text-zinc-500 uppercase block mb-0.5 tracking-wide">OT 🔍</span>
+                            <span id="sum-ot" class="text-[10px] sm:text-xs font-semibold text-amber-400 tnum">RM 0.00</span>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center border-t border-zinc-800 pt-4 mb-2">
-                        <span class="text-sm text-zinc-400">Gaji Kasar</span>
-                        <span id="sum-gross" class="text-base font-normal text-emerald-400"></span>
+                    <div class="space-y-2 mb-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-zinc-400">Gaji Kasar</span>
+                            <span id="sum-gross" class="text-sm font-semibold text-emerald-400 tnum">RM 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-rose-400">Potongan</span>
+                            <span id="sum-deductions" class="text-sm font-semibold text-rose-400 tnum">− RM 0.00</span>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center pb-4">
-                        <span class="text-sm text-rose-500">Jumlah Potongan</span>
-                        <span id="sum-deductions" class="text-base font-normal text-rose-500"></span>
-                    </div>
-                    <div class="flex justify-between items-center border-t border-zinc-800 pt-4">
-                        <span class="text-sm text-zinc-200 uppercase tracking-wider">Gaji Bersih</span>
-                        <span id="sum-net" class="text-xl font-normal text-white"></span>
+
+                    <div class="flex justify-between items-center border-t border-zinc-800/70 pt-3">
+                        <span class="text-xs text-zinc-300 uppercase tracking-wider font-medium">Gaji Bersih</span>
+                        <span id="sum-net" class="text-lg font-bold tnum inline-block bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] title-shimmer bg-clip-text text-transparent">
+                            RM 0.00
+                        </span>
                     </div>
                 </div>
             </div>
         </main>
-    </div>
 
-    <!-- BOTTOM NAVIGATION -->
-    <nav id="bottom-nav" class="fixed bottom-0 w-full bg-[#1a1a1c] border-t border-zinc-800 p-3 z-40 hidden" style="padding-bottom: max(12px, env(safe-area-inset-bottom))">
-        <div class="max-w-md mx-auto flex justify-around">
-            <button onclick="switchView('calendar')" id="nav-calendar" class="flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-emerald-400 bg-emerald-400/10">
-                <span class="text-xl mb-0.5">📅</span>
-                <span class="text-[10px] font-normal uppercase">Kalendar</span>
-            </button>
-            <button onclick="switchView('salary')" id="nav-salary" class="flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-zinc-500">
-                <span class="text-xl mb-0.5">💰</span>
-                <span class="text-[10px] font-normal uppercase">Kira Gaji</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- ==================== MODALS ==================== -->
-
-    <!-- DAY MODAL -->
-    <div id="day-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
-            <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
-                <h3 id="day-modal-title" class="font-normal text-emerald-400 text-sm"></h3>
-                <button onclick="closeModal('day-modal')" class="p-1 text-xl">❌</button>
-            </div>
-            <div class="p-5 space-y-4">
-                <input type="hidden" id="modal-date">
-                <div>
-                    <label class="text-[10px] font-normal text-zinc-500 uppercase">Jenis Hari</label>
-                    <select id="modal-daytype" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white"></select>
+        <!-- BOTTOM NAV -->
+        <nav class="fixed bottom-0 w-full glass-header bg-[#1a1a1c]/90 border-t border-zinc-800/70 z-40" style="padding-bottom: max(10px, env(safe-area-inset-bottom))">
+            <div class="max-w-md mx-auto relative">
+                <div id="nav-indicator" class="absolute inset-y-0 left-0 w-1/2 p-2 pointer-events-none transition-transform duration-300 ease-out" style="transform: translateX(0%);">
+                    <div class="h-full rounded-xl bg-emerald-500/10 border border-emerald-500/25"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="flex relative">
+                    <button onclick="switchView('calendar')" id="nav-btn-calendar" class="flex-1 flex flex-col items-center gap-0.5 p-2 rounded-xl transition-colors text-emerald-400">
+                        <span class="text-lg">📅</span>
+                        <span class="text-[9px] font-semibold uppercase tracking-wider">Kalendar</span>
+                    </button>
+                    <button onclick="switchView('salary')" id="nav-btn-salary" class="flex-1 flex flex-col items-center gap-0.5 p-2 rounded-xl transition-colors text-zinc-500 hover:text-zinc-300">
+                        <span class="text-lg">💰</span>
+                        <span class="text-[9px] font-semibold uppercase tracking-wider">Kira Gaji</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MODAL: DAY EDIT -->
+        <div id="day-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 anim-fadeIn">
+            <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700/80 overflow-hidden shadow-2xl anim-popIn">
+                <div class="p-3.5 bg-zinc-900 border-b border-zinc-800/80 flex justify-between items-center gap-2">
+                    <h3 id="day-modal-title" class="font-semibold text-emerald-400 text-xs">Tarikh</h3>
+                    <button onclick="closeModal('day-modal')" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center">×</button>
+                </div>
+                <div class="p-4 space-y-3">
+                    <input type="hidden" id="modal-date-val">
                     <div>
-                        <label class="text-[10px] font-normal text-zinc-500 uppercase">Syif</label>
-                        <select id="modal-shift" onchange="autoOT()" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white">
-                            <option value="">- Tiada -</option>
-                            <option value="M">M</option><option value="N">N</option><option value="M<8">M<8</option>
-                            <option value="N<8">N<8</option><option value="M<12">M<12</option><option value="N<12">N<12</option>
-                            <option value="OFF">OFF</option><option value="REST">REST</option>
-                        </select>
+                        <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">Jenis Hari</label>
+                        <select id="modal-daytype" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 outline-none focus:border-emerald-500 text-sm text-white"></select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">Syif</label>
+                            <select id="modal-shift" onchange="onModalShiftChange(this.value)" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 outline-none focus:border-emerald-500 text-sm text-white">
+                                <option value="">- Tiada -</option>
+                                <option value="M">M</option><option value="N">N</option>
+                                <option value="M<8">M<8</option><option value="N<8">N<8</option>
+                                <option value="M<12">M<12</option><option value="N<12">N<12</option>
+                                <option value="OFF">OFF</option><option value="REST">REST</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">OT (Jam)</label>
+                            <input type="number" step="0.5" id="modal-ot" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 outline-none focus:border-emerald-500 text-sm text-white tnum" />
+                        </div>
                     </div>
                     <div>
-                        <label class="text-[10px] font-normal text-zinc-500 uppercase">OT (Jam)</label>
-                        <input type="number" step="0.5" id="modal-ot" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white" />
+                        <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">Nota</label>
+                        <input type="text" id="modal-note" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 outline-none focus:border-emerald-500 text-sm text-white" />
                     </div>
                 </div>
-                <div>
-                    <label class="text-[10px] font-normal text-zinc-500 uppercase">Nota Tambahan</label>
-                    <input type="text" id="modal-note" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2.5 outline-none focus:border-emerald-500 text-sm font-normal text-white" />
+                <div class="flex bg-zinc-900 border-t border-zinc-800/80">
+                    <button onclick="clearDayRecord()" class="flex-1 p-3 text-rose-400 hover:bg-rose-500/10 font-semibold text-xs uppercase tracking-wide transition-colors">🗑️ Padam</button>
+                    <button onclick="saveDayModal()" class="flex-1 p-3 bg-emerald-600 hover:bg-emerald-500 font-semibold text-xs uppercase tracking-wide transition-colors text-white">Simpan</button>
                 </div>
-            </div>
-            <div class="flex bg-zinc-900 border-t border-zinc-800">
-                <button onclick="clearDayRecord()" class="flex-1 p-4 text-rose-500 hover:bg-rose-500/10 font-normal text-sm uppercase tracking-wide transition-colors">🗑️ Padam</button>
-                <button onclick="saveDayModal()" class="flex-1 p-4 bg-emerald-600 hover:bg-emerald-500 font-normal text-sm uppercase tracking-wide transition-colors text-white">Simpan</button>
             </div>
         </div>
-    </div>
 
-    <!-- PATTERN MODAL -->
-    <div id="pattern-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
-            <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
-                <h3 class="font-normal text-sm text-cyan-400 flex items-center gap-2">🪄 Jana Corak Automatik</h3>
-                <button onclick="closeModal('pattern-modal')" class="p-1 text-xl">❌</button>
-            </div>
-            <div class="p-5 space-y-4">
-                <div>
-                    <label class="text-[10px] font-normal text-zinc-500 uppercase">Dari Tarikh</label>
-                    <input type="date" id="pat-start" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2 text-sm text-white font-normal outline-none focus:border-cyan-500" />
+        <!-- MODAL: PATTERN GENERATOR -->
+        <div id="pattern-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 anim-fadeIn">
+            <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700/80 overflow-hidden shadow-2xl anim-popIn">
+                <div class="p-3.5 bg-zinc-900 border-b border-zinc-800/80 flex justify-between items-center gap-2">
+                    <h3 class="font-semibold text-xs text-cyan-400">🪄 Jana Corak Automatik</h3>
+                    <button onclick="closeModal('pattern-modal')" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center">×</button>
                 </div>
-                <div>
-                    <label class="text-[10px] font-normal text-zinc-500 uppercase">Corak (Cth: M, OFF, REST, N)</label>
-                    <textarea id="pat-pattern" rows="2" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2 text-sm uppercase font-normal outline-none focus:border-cyan-500 text-white"></textarea>
-                </div>
-                <div>
-                    <label class="text-[10px] font-normal text-zinc-500 uppercase">Sehingga Tarikh</label>
-                    <input type="date" id="pat-end" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2 text-sm text-white font-normal outline-none focus:border-cyan-500" />
-                </div>
-            </div>
-            <button onclick="generateShiftPattern()" class="w-full p-4 bg-cyan-600 hover:bg-cyan-500 text-white font-normal text-sm uppercase tracking-wide flex justify-center items-center gap-2 transition-colors">Jana Sekarang</button>
-        </div>
-    </div>
-
-    <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex flex-col justify-end sm:justify-center items-center sm:p-4 backdrop-blur-sm">
-        <div class="bg-[#1a1a1c] w-full sm:max-w-md h-[90vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl border border-zinc-700 flex flex-col shadow-2xl">
-            <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center shrink-0">
-                <h3 class="font-normal text-sm text-white flex items-center gap-2">
-                    ⚙️ Tetapan <span id="settings-badge" class="bg-rose-600 text-[10px] px-2 py-0.5 rounded shadow"></span>
-                </h3>
-                <button onclick="saveAndCloseSettings()" class="p-1 text-xl">❌</button>
-            </div>
-            
-            <div class="p-5 overflow-y-auto space-y-6 flex-1 font-normal bg-zinc-950 pb-20">
-                <p id="settings-note" class="text-[10px] text-emerald-400 italic text-center -mt-2 mb-2 bg-emerald-900/20 p-2 rounded"></p>
-                
-                <section class="space-y-3 border-b border-zinc-800 pb-5">
-                    <h4 class="text-xs text-emerald-400 uppercase">Gaji & Kitaran</h4>
+                <div class="p-4 space-y-3">
                     <div>
-                        <label class="text-[10px] text-zinc-400 uppercase">Nama Jadual Syif</label>
-                        <input type="text" id="set-shiftname" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-emerald-400 outline-none focus:border-emerald-500 font-normal" />
+                        <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">Dari Tarikh</label>
+                        <input type="date" id="pat-start" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 text-sm text-white outline-none focus:border-cyan-500" />
                     </div>
-                    <div class="grid grid-cols-2 gap-3 mt-3">
-                        <div>
-                            <label class="text-[10px] text-zinc-400 uppercase">Gaji Asas (RM)</label>
-                            <input type="number" id="set-basic" oninput="updateCustomRateUI()" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 font-normal" />
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-400 uppercase">Kadar Sejam Custom</label>
-                            <input type="number" step="0.01" id="set-customrate" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 font-normal" />
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-400 uppercase">Mula Kitaran (hb)</label>
-                            <input type="number" id="set-startcycle" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 font-normal" />
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-zinc-400 uppercase">Tamat Kitaran (hb)</label>
-                            <input type="number" id="set-endcycle" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 font-normal" />
-                        </div>
+                    <div>
+                        <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">Corak (Cth: M, OFF, REST, N)</label>
+                        <textarea id="pat-pattern" rows="2" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 text-sm uppercase outline-none focus:border-cyan-500 text-white">M, M, M, M, OFF, REST, N, N, N, N, OFF, REST</textarea>
                     </div>
-                </section>
-
-                <section class="space-y-3 border-b border-zinc-800 pb-5">
-                    <div class="flex justify-between items-center">
-                        <h4 class="text-xs text-amber-400 uppercase">Jenis Hari & Gandaan OT</h4>
-                        <button onclick="addDayType()" class="text-[10px] uppercase tracking-wide bg-zinc-800 text-white px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
+                    <div>
+                        <label class="text-[9px] font-semibold text-zinc-500 uppercase tracking-wide">Sehingga Tarikh</label>
+                        <input type="date" id="pat-end" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-md p-2 text-sm text-white outline-none focus:border-cyan-500" />
                     </div>
-                    <div id="settings-daytypes" class="space-y-3"></div>
-                </section>
-
-                <section class="space-y-3 border-b border-zinc-800 pb-5">
-                    <h4 class="text-xs text-cyan-400 uppercase">Kadar Elaun Syif (RM)</h4>
-                    <div id="settings-allowances" class="grid grid-cols-3 gap-2"></div>
-                    <div class="mt-3 pt-3 border-t border-zinc-800/50">
-                        <label class="text-[10px] text-zinc-400 uppercase">Elaun Meal (Untuk Syif N)</label>
-                        <input type="number" id="set-meal" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white text-center font-normal outline-none focus:border-cyan-500" />
-                    </div>
-                </section>
-
-                <section class="space-y-3 border-b border-zinc-800 pb-5">
-                    <div class="flex justify-between items-center">
-                        <h4 class="text-xs text-blue-400 uppercase">Elaun Tambahan (RM)</h4>
-                        <button onclick="addCustomAllowance()" class="text-[10px] uppercase tracking-wide bg-zinc-800 text-white px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
-                    </div>
-                    <div id="settings-custom-allowances" class="space-y-2"></div>
-                </section>
-
-                <section class="space-y-3 border-b border-zinc-800 pb-5">
-                    <div class="flex justify-between items-center">
-                        <h4 class="text-xs text-rose-400 uppercase">Potongan (RM)</h4>
-                        <button onclick="addDeduction()" class="text-[10px] uppercase tracking-wide bg-zinc-800 text-white px-3 py-1.5 rounded hover:bg-zinc-700 transition">➕ Tambah</button>
-                    </div>
-                    <div id="settings-deductions" class="space-y-2"></div>
-                </section>
-
-                <section class="space-y-3 pb-4">
-                    <h4 class="text-xs text-zinc-400 uppercase text-center border-b border-zinc-800 pb-2">Backup & Restore</h4>
-                    <div class="flex gap-3 pt-2">
-                        <button onclick="exportData()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 p-3 rounded-lg text-sm transition">💾 Export JSON</button>
-                        <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 p-3 rounded-lg text-sm transition">📂 Import JSON</button>
-                        <input type="file" id="import-file" onchange="importData(event)" accept=".json" class="hidden" />
-                    </div>
-                </section>
+                </div>
+                <button onclick="generateShiftPattern()" class="w-full p-3.5 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs uppercase tracking-widest transition-colors">Jana Sekarang</button>
             </div>
-            
-            <button onclick="saveAndCloseSettings()" class="w-full p-4 bg-zinc-800 hover:bg-zinc-700 text-white font-normal uppercase tracking-widest text-sm shrink-0 transition-colors">Tutup & Simpan</button>
+        </div>
+
+        <!-- MODAL: SETTINGS -->
+        <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col justify-end sm:justify-center items-center sm:p-4 anim-fadeIn">
+            <div class="bg-[#1a1a1c] w-full sm:max-w-md h-[90vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl border border-zinc-700/80 flex flex-col shadow-2xl anim-slideUp">
+                <div class="p-3.5 bg-zinc-900 border-b border-zinc-800/80 flex justify-between items-center shrink-0 gap-2">
+                    <h3 class="font-semibold text-xs text-white flex items-center gap-2">
+                        ⚙️ Tetapan <span id="settings-badge" class="bg-rose-600 text-[9px] px-1.5 py-0.5 rounded font-medium tnum"></span>
+                    </h3>
+                    <button onclick="closeModal('settings-modal')" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center">×</button>
+                </div>
+
+                <div class="p-4 overflow-y-auto space-y-5 flex-1 bg-zinc-950">
+                    <p id="settings-note" class="text-[10px] text-emerald-400 italic text-center bg-emerald-900/20 p-2 rounded border border-emerald-900/30"></p>
+
+                    <section class="space-y-3 border-b border-zinc-800/60 pb-4">
+                        <h4 class="text-[10px] text-emerald-400 uppercase font-semibold tracking-wider">Gaji & Kitaran</h4>
+                        <div>
+                            <label class="text-[9px] text-zinc-500 uppercase tracking-wide">Nama Jadual Syif</label>
+                            <input type="text" id="set-shiftname" onchange="updateSetting('shiftName', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2 mt-1 text-sm text-emerald-400 outline-none focus:border-emerald-500" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5 mt-2">
+                            <div>
+                                <label class="text-[9px] text-zinc-500 uppercase tracking-wide">Gaji Asas (RM)</label>
+                                <input type="number" id="set-basic" oninput="updateSetting('baseSalary', this.value); renderSettingsForm();" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 tnum" />
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-zinc-500 uppercase tracking-wide">Kadar Sejam</label>
+                                <input type="number" id="set-hourly" onchange="updateSetting('customHourlyRate', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 tnum" />
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-zinc-500 uppercase tracking-wide">Mula (hb)</label>
+                                <input type="number" id="set-start" onchange="updateSetting('cycleStart', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 tnum" />
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-zinc-500 uppercase tracking-wide">Tamat (hb)</label>
+                                <input type="number" id="set-end" onchange="updateSetting('cycleEnd', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2 mt-1 text-sm text-white outline-none focus:border-emerald-500 tnum" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="space-y-2.5 border-b border-zinc-800/60 pb-4">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-[10px] text-amber-400 uppercase font-semibold tracking-wider">Jenis Hari & Gandaan OT</h4>
+                            <button onclick="addDayType()" class="text-[9px] uppercase tracking-wide bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 text-white rounded">➕ Tambah</button>
+                        </div>
+                        <div id="settings-daytypes-list" class="space-y-2"></div>
+                    </section>
+
+                    <section class="space-y-2.5 border-b border-zinc-800/60 pb-4">
+                        <h4 class="text-[10px] text-cyan-400 uppercase font-semibold tracking-wider">Kadar Elaun Syif (RM)</h4>
+                        <div id="settings-allowances-grid" class="grid grid-cols-3 gap-2"></div>
+                        <div class="pt-2 border-t border-zinc-800/40">
+                            <label class="text-[9px] text-zinc-500 uppercase tracking-wide">Elaun Meal (Syif N)</label>
+                            <input type="number" id="set-meal" onchange="updateSetting('mealAllowance', this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2 mt-1 text-sm text-white text-center outline-none tnum" />
+                        </div>
+                    </section>
+
+                    <section class="space-y-2.5 border-b border-zinc-800/60 pb-4">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-[10px] text-blue-400 uppercase font-semibold tracking-wider">Elaun Tambahan (RM)</h4>
+                            <button onclick="addCustomAllowance()" class="text-[9px] uppercase tracking-wide bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 text-white rounded">➕</button>
+                        </div>
+                        <div id="settings-custom-allowances-list" class="space-y-2"></div>
+                    </section>
+
+                    <section class="space-y-2.5 border-b border-zinc-800/60 pb-4">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-[10px] text-rose-400 uppercase font-semibold tracking-wider">Potongan (RM)</h4>
+                            <button onclick="addDeduction()" class="text-[9px] uppercase tracking-wide bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 text-white rounded">➕</button>
+                        </div>
+                        <div id="settings-deductions-list" class="space-y-2"></div>
+                    </section>
+
+                    <section class="space-y-2.5 pb-3">
+                        <h4 class="text-[10px] text-zinc-500 uppercase text-center border-b border-zinc-800/60 pb-2 font-semibold">Backup & Restore</h4>
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="exportData()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/60 p-2.5 rounded-lg text-xs">💾 Export</button>
+                            <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/60 p-2.5 rounded-lg text-xs">📂 Import</button>
+                            <input type="file" id="import-file" onchange="importData(event)" accept=".json" class="hidden" />
+                        </div>
+                    </section>
+                </div>
+
+                <button onclick="closeModal('settings-modal')" class="w-full p-3.5 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold uppercase tracking-widest text-xs shrink-0">Tutup</button>
+            </div>
+        </div>
+
+        <!-- MODAL: BREAKDOWN -->
+        <div id="breakdown-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 anim-fadeIn">
+            <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700/80 overflow-hidden shadow-2xl anim-popIn">
+                <div class="p-3.5 bg-zinc-900 border-b border-zinc-800/80 flex justify-between items-center gap-2">
+                    <h3 id="breakdown-title" class="text-xs font-semibold text-white uppercase tracking-wider">Perincian</h3>
+                    <button onclick="closeModal('breakdown-modal')" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center">×</button>
+                </div>
+                <div id="breakdown-content" class="p-4 space-y-3 max-h-[70vh] overflow-y-auto"></div>
+                <button onclick="closeModal('breakdown-modal')" class="w-full p-3.5 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold uppercase tracking-widest text-xs">Tutup</button>
+            </div>
+        </div>
+
+        <!-- MODAL: CONFIRM -->
+        <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 anim-fadeIn">
+            <div class="bg-[#1a1a1c] w-full max-w-xs rounded-2xl border border-zinc-700/80 p-5 shadow-2xl text-center anim-popIn">
+                <div class="text-3xl mb-2">⚠️</div>
+                <h3 id="confirm-msg" class="text-white text-xs font-medium mb-5 leading-relaxed">Adakah anda pasti?</h3>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('confirm-modal')" class="flex-1 p-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold">Tidak</button>
+                    <button id="confirm-btn-yes" class="flex-1 p-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold">Ya, Teruskan</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- BREAKDOWN MODAL -->
-    <div id="breakdown-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-[#1a1a1c] w-full max-w-sm rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl font-normal">
-            <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
-                <h3 id="breakdown-title" class="text-sm font-normal text-white uppercase tracking-wide"></h3>
-                <button onclick="closeModal('breakdown-modal')" class="p-1 text-xl">❌</button>
-            </div>
-            <div id="breakdown-content" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto"></div>
-            <button onclick="closeModal('breakdown-modal')" class="w-full p-4 bg-zinc-800 hover:bg-zinc-700 text-white font-normal uppercase tracking-widest text-sm transition-colors">Tutup</button>
-        </div>
-    </div>
-
-    <!-- CONFIRM DIALOG MODAL -->
-    <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-[#1a1a1c] w-full max-w-xs rounded-2xl border border-zinc-700 p-5 shadow-2xl text-center">
-            <div class="text-4xl mb-3">⚠️</div>
-            <h3 id="confirm-message" class="text-white text-sm font-normal mb-6"></h3>
-            <div class="flex gap-3">
-                <button onclick="closeConfirmModal()" class="flex-1 p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-normal transition">Tidak</button>
-                <button id="btn-confirm-yes" class="flex-1 p-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-normal transition">Ya, Padam</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const defaultMonthSettings = {
-            shiftName: 'Jadual Syif Q',
-            baseSalary: 3000,
-            customHourlyRate: '',
-            cycleStart: 20,
-            cycleEnd: 19,
+            shiftName: 'Jadual Syif Q', baseSalary: 3000, customHourlyRate: '', cycleStart: 20, cycleEnd: 19,
             allowances: { 'M': 0, 'N': 0, 'M<8': 0, 'N<8': 0, 'M<12': 0, 'N<12': 0 },
             mealAllowance: 0,
-            customAllowances: [
-                { id: 1, name: 'Elaun Kedatangan', amount: '' },
-                { id: 2, name: 'Elaun Eksekutif', amount: '' }
-            ],
-            deductions: [
-                { id: 1, name: 'KWSP', amount: '' },
-                { id: 2, name: 'PERKESO', amount: '' }
-            ],
+            customAllowances: [{ id: 1, name: 'Elaun Kedatangan', amount: '' }, { id: 2, name: 'Elaun Eksekutif', amount: '' }],
+            deductions: [{ id: 1, name: 'KWSP', amount: '' }, { id: 2, name: 'PERKESO', amount: '' }],
             dayTypes: [
                 { id: 1, name: 'Biasa', isTiered: false, rate: 1.5 },
                 { id: 2, name: 'Offday', isTiered: false, rate: 1.5 },
@@ -352,25 +377,526 @@
 
         let state = {
             activeView: 'calendar',
-            activeMonth: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`,
+            activeMonth: (() => { const d = new Date(); return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`; })(),
             monthlySettings: {},
             records: {},
-            lastSummary: null,
-            confirmAction: null
+            slideDir: 1,
+            touchStart: null,
+            touchEnd: null,
+            confirmCallback: null
         };
 
-        const formatRM = (val) => new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' }).format(val || 0);
-        const parseNum = (val) => parseFloat(val) || 0;
-        const getFullDateStr = (y, m, d) => `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
         const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
-        // --- PWA / WEBAPK INSTALL HANDLER ---
+        window.onload = () => {
+            try {
+                const sm = localStorage.getItem('komez_monthly_settings');
+                if (sm) state.monthlySettings = JSON.parse(sm);
+                const sr = localStorage.getItem('komez_shift_records');
+                if (sr) state.records = JSON.parse(sr);
+            } catch (e) { console.error(e); }
+
+            const d = new Date();
+            const todayStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+            document.getElementById('pat-start').value = todayStr;
+            document.getElementById('pat-end').value = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()}`;
+            document.getElementById('calc-month').value = state.activeMonth;
+
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+
+            setupSwipeListeners();
+            refreshApp();
+        };
+
+        function getActiveSettings() {
+            if (state.monthlySettings[state.activeMonth]) return state.monthlySettings[state.activeMonth];
+            const past = Object.keys(state.monthlySettings).filter(m => m < state.activeMonth).sort();
+            if (past.length > 0) return JSON.parse(JSON.stringify(state.monthlySettings[past[past.length - 1]]));
+            return JSON.parse(JSON.stringify(defaultMonthSettings));
+        }
+
+        function modifySettings(fn) {
+            let base = state.monthlySettings[state.activeMonth];
+            if (!base) {
+                const past = Object.keys(state.monthlySettings).filter(m => m < state.activeMonth).sort();
+                base = past.length > 0 ? state.monthlySettings[past[past.length - 1]] : defaultMonthSettings;
+            }
+            const cloned = JSON.parse(JSON.stringify(base));
+            fn(cloned);
+            state.monthlySettings[state.activeMonth] = cloned;
+            localStorage.setItem('komez_monthly_settings', JSON.stringify(state.monthlySettings));
+            refreshApp();
+        }
+
+        function saveRecords(newRecs) {
+            state.records = newRecs;
+            localStorage.setItem('komez_shift_records', JSON.stringify(newRecs));
+            refreshApp();
+        }
+
+        function refreshApp() {
+            const settings = getActiveSettings();
+            document.getElementById('header-title').innerText = settings.shiftName || 'Jadual Syif Q';
+            document.getElementById('header-month-badge').innerText = parseInt(state.activeMonth.split('-')[1]);
+            
+            if (state.activeView === 'calendar') renderCalendar();
+            else renderSalary();
+        }
+
+        function switchView(view) {
+            state.activeView = view;
+            const cEl = document.getElementById('view-calendar');
+            const sEl = document.getElementById('view-salary');
+            const ind = document.getElementById('nav-indicator');
+            const btnC = document.getElementById('nav-btn-calendar');
+            const btnS = document.getElementById('nav-btn-salary');
+
+            if (view === 'calendar') {
+                cEl.classList.remove('hidden');
+                sEl.classList.add('hidden');
+                ind.style.transform = 'translateX(0%)';
+                btnC.className = "flex-1 flex flex-col items-center gap-0.5 p-2 rounded-xl transition-colors text-emerald-400";
+                btnS.className = "flex-1 flex flex-col items-center gap-0.5 p-2 rounded-xl transition-colors text-zinc-500 hover:text-zinc-300";
+                renderCalendar();
+            } else {
+                cEl.classList.add('hidden');
+                sEl.classList.remove('hidden');
+                ind.style.transform = 'translateX(100%)';
+                btnS.className = "flex-1 flex flex-col items-center gap-0.5 p-2 rounded-xl transition-colors text-emerald-400";
+                btnC.className = "flex-1 flex flex-col items-center gap-0.5 p-2 rounded-xl transition-colors text-zinc-500 hover:text-zinc-300";
+                renderSalary();
+            }
+        }
+
+        function shiftMonth(offset) {
+            state.slideDir = offset > 0 ? 1 : -1;
+            const [y, m] = state.activeMonth.split('-');
+            const d = new Date(parseInt(y), parseInt(m) - 1 + offset, 1);
+            state.activeMonth = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+            refreshApp();
+        }
+
+        function setupSwipeListeners() {
+            const cView = document.getElementById('view-calendar');
+            cView.addEventListener('touchstart', e => { state.touchStart = e.targetTouches[0].clientX; }, {passive: true});
+            cView.addEventListener('touchmove', e => { state.touchEnd = e.targetTouches[0].clientX; }, {passive: true});
+            cView.addEventListener('touchend', () => {
+                if (!state.touchStart || !state.touchEnd) return;
+                const dist = state.touchStart - state.touchEnd;
+                if (dist > 50) shiftMonth(1);
+                else if (dist < -50) shiftMonth(-1);
+                state.touchStart = null; state.touchEnd = null;
+            }, {passive: true});
+        }
+
+        function renderCalendar() {
+            const [yStr, mStr] = state.activeMonth.split('-');
+            const y = parseInt(yStr), m = parseInt(mStr) - 1;
+            document.getElementById('cal-month-title').innerText = `${monthNames[m]} ${y}`;
+
+            const firstDay = new Date(y, m, 1).getDay();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const todayStr = new Date().toDateString();
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${y}-${(m + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                const rec = state.records[dateStr] || {};
+                const isToday = todayStr === new Date(y, m, i).toDateString();
+                const dt = (rec.dayType || 'Biasa').toUpperCase();
+                const shift = (rec.shift || '').toUpperCase();
+                const isOffRest = dt.includes('OFF') || dt.includes('REST');
+
+                let bg = 'bg-zinc-900/50 text-zinc-500 border-zinc-800/60';
+                if (isOffRest) bg = 'bg-zinc-400/90 text-zinc-900 border-zinc-500/70';
+                else if (shift.startsWith('M')) bg = 'bg-emerald-700 text-white border-emerald-600';
+                else if (shift.startsWith('N')) bg = 'bg-zinc-700 text-white border-zinc-600';
+
+                html += `
+                    <div onclick="openDayModal('${dateStr}')" class="relative flex flex-col p-1 cursor-pointer rounded-lg overflow-hidden min-h-[72px] sm:min-h-[88px] transition-transform hover:scale-[1.04] border ${bg}">
+                        <div class="flex justify-between items-start w-full">
+                            <span class="text-[11px] sm:text-xs font-bold tnum ${isToday ? 'bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center leading-none pulse-red' : ''}">${i}</span>
+                            ${rec.ot ? `<span class="text-[8px] sm:text-[9px] font-semibold bg-amber-400 text-black px-1 py-0 rounded shadow-sm tnum">${rec.ot}</span>` : ''}
+                        </div>
+                        <div class="flex-1 flex flex-col items-center justify-center w-full my-0.5">
+                            ${isOffRest ? `
+                                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-black/60">${dt.includes('OFF') ? 'OFF' : 'REST'}</span>
+                                ${shift && shift !== 'OFF' && shift !== 'REST' ? `<span class="text-[8px] sm:text-[9px] px-1 py-0 rounded font-semibold text-white mt-0.5 ${shift.startsWith('M') ? 'bg-emerald-700' : 'bg-zinc-800 border border-zinc-600'}">${shift}</span>` : ''}
+                            ` : `<span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wide opacity-90">${shift}</span>`}
+                        </div>
+                        ${rec.note ? `<div class="mt-auto w-full bg-white text-black text-[8px] sm:text-[9px] px-1 py-0.5 rounded truncate font-medium text-center">${rec.note}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            const grid = document.getElementById('calendar-grid');
+            grid.className = `grid grid-cols-7 auto-rows-fr gap-1 p-1.5 ${state.slideDir > 0 ? 'anim-slideRight' : 'anim-slideLeft'}`;
+            grid.innerHTML = html;
+        }
+
+        function updateCalcMonth(val) {
+            if (!val) return;
+            state.activeMonth = val;
+            refreshApp();
+        }
+
+        function renderSalary() {
+            const settings = getActiveSettings();
+            document.getElementById('calc-month').value = state.activeMonth;
+            document.getElementById('calc-cycle-desc').innerText = `${settings.cycleStart}hb – ${settings.cycleEnd}hb • ${state.activeMonth}`;
+
+            const [yStr, mStr] = state.activeMonth.split('-');
+            const y = parseInt(yStr), m = parseInt(mStr) - 1;
+            const sDay = parseInt(settings.cycleStart) || 1;
+            const eDay = parseInt(settings.cycleEnd) || 31;
+
+            let startD, endD;
+            if (sDay > eDay) { startD = new Date(y, m - 1, sDay); endD = new Date(y, m, eDay); }
+            else { startD = new Date(y, m, sDay); endD = new Date(y, m, eDay); }
+
+            let curr = new Date(startD);
+            let cycleDates = [];
+            while (curr <= endD && cycleDates.length < 40) {
+                cycleDates.push({
+                    dateStr: `${curr.getFullYear()}-${(curr.getMonth() + 1).toString().padStart(2, '0')}-${curr.getDate().toString().padStart(2, '0')}`,
+                    formatted: `${curr.getDate().toString().padStart(2, '0')}/${(curr.getMonth() + 1).toString().padStart(2, '0')}`,
+                    isSun: curr.getDay() === 0
+                });
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            let tbodyHtml = '';
+            cycleDates.forEach(day => {
+                const rec = state.records[day.dateStr] || {};
+                tbodyHtml += `
+                    <tr class="hover:bg-zinc-800/40 ${day.isSun ? 'bg-rose-950/10' : ''}">
+                        <td class="p-2.5 whitespace-nowrap text-zinc-300 text-[11px] tnum">${day.formatted}</td>
+                        <td class="p-2.5 text-center text-[11px] text-zinc-400">${rec.dayType || '-'}</td>
+                        <td class="p-2.5 text-center text-emerald-400 text-[11px] font-medium">${rec.shift || '-'}</td>
+                        <td class="p-2.5 text-center text-amber-400 text-[11px] tnum">${rec.ot || '-'}</td>
+                        <td class="p-2.5 text-zinc-500 text-[11px] italic truncate max-w-[80px]">${rec.note || ''}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('salary-tbody').innerHTML = tbodyHtml || `<tr><td colspan="5" class="p-4 text-center text-zinc-500 text-xs">Tiada data</td></tr>`;
+
+            // Calculations
+            const basic = parseFloat(settings.baseSalary) || 0;
+            const customHr = parseFloat(settings.customHourlyRate) || 0;
+            let baseRate = basic / 26 / 8;
+            if (basic >= 4000 && customHr > 0) baseRate = customHr;
+
+            let totalOtAmt = 0, totalShiftAllow = 0, mealCount = 0;
+            let otBreakdown = {}, shiftCounts = {};
+
+            const addOt = (r, h, a) => {
+                const k = r.toFixed(1);
+                if (!otBreakdown[k]) otBreakdown[k] = { hours: 0, amount: 0 };
+                otBreakdown[k].hours += h; otBreakdown[k].amount += a;
+                totalOtAmt += a;
+            };
+
+            cycleDates.forEach(day => {
+                const rec = state.records[day.dateStr] || {};
+                const s = (rec.shift || '').toUpperCase();
+                const dtName = (rec.dayType || 'Biasa').toUpperCase();
+                const ot = parseFloat(rec.ot) || 0;
+
+                if (s && s !== 'OFF' && s !== 'REST') {
+                    shiftCounts[s] = (shiftCounts[s] || 0) + 1;
+                    if (settings.allowances[s] !== undefined) totalShiftAllow += parseFloat(settings.allowances[s]) || 0;
+                    if (s.startsWith('N')) mealCount++;
+                }
+                if (ot > 0) {
+                    let dtConf = settings.dayTypes.find(d => d.name.toUpperCase() === dtName) || { isTiered: false, rate: 1.5 };
+                    if (dtConf.isTiered) {
+                        const lim = parseFloat(dtConf.tier1Hours) || 8, r1 = parseFloat(dtConf.tier1Rate) || 2.0, r2 = parseFloat(dtConf.tier2Rate) || 3.0;
+                        const t1 = Math.min(ot, lim), t2 = Math.max(0, ot - lim);
+                        if (t1 > 0) addOt(r1, t1, t1 * baseRate * r1);
+                        if (t2 > 0) addOt(r2, t2, t2 * baseRate * r2);
+                    } else {
+                        const r = parseFloat(dtConf.rate) || 1.5;
+                        addOt(r, ot, ot * baseRate * r);
+                    }
+                }
+            });
+
+            const mealTotal = mealCount * (parseFloat(settings.mealAllowance) || 0);
+            const extraTotal = (settings.customAllowances || []).reduce((acc, a) => acc + (parseFloat(a.amount) || 0), 0);
+            totalShiftAllow += (mealTotal + extraTotal);
+
+            const gross = basic + totalOtAmt + totalShiftAllow;
+            const deductionsTotal = (settings.deductions || []).reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
+            const net = gross - deductionsTotal;
+
+            window.lastSummary = { baseRate, totalOtAmt, totalShiftAllow, gross, deductionsTotal, net, otBreakdown, shiftCounts, mealCount, mealTotal, extraTotal, settings, cycleDates };
+
+            document.getElementById('sum-basic').innerText = formatRM(basic);
+            document.getElementById('sum-allowance').innerText = formatRM(totalShiftAllow);
+            document.getElementById('sum-ot').innerText = formatRM(totalOtAmt);
+            document.getElementById('sum-gross').innerText = formatRM(gross);
+            document.getElementById('sum-deductions').innerText = `− ${formatRM(deductionsTotal)}`;
+            document.getElementById('sum-net').innerText = formatRM(net);
+        }
+
+        const formatRM = val => new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' }).format(val || 0);
+
+        // MODALS
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function openDayModal(dateStr) {
+            const settings = getActiveSettings();
+            const fallbackDt = settings.dayTypes.length > 0 ? settings.dayTypes[0].name : 'Biasa';
+            const data = state.records[dateStr] || { shift: '', dayType: fallbackDt, ot: '', note: '' };
+
+            document.getElementById('day-modal-title').innerText = dateStr;
+            document.getElementById('modal-date-val').value = dateStr;
+            
+            const sel = document.getElementById('modal-daytype');
+            sel.innerHTML = settings.dayTypes.map(dt => `<option value="${dt.name}">${dt.name}</option>`).join('');
+            sel.value = data.dayType || fallbackDt;
+
+            document.getElementById('modal-shift').value = data.shift;
+            document.getElementById('modal-ot').value = data.ot;
+            document.getElementById('modal-note').value = data.note;
+            openModal('day-modal');
+        }
+
+        function onModalShiftChange(val) {
+            const otInp = document.getElementById('modal-ot');
+            const s = val.toUpperCase();
+            if ((s.startsWith('M') || s.startsWith('N')) && !otInp.value) otInp.value = '3';
+            else if (!val || s === 'OFF' || s === 'REST') otInp.value = '';
+        }
+
+        function saveDayModal() {
+            const dateStr = document.getElementById('modal-date-val').value;
+            const recs = { ...state.records };
+            recs[dateStr] = {
+                dayType: document.getElementById('modal-daytype').value,
+                shift: document.getElementById('modal-shift').value,
+                ot: document.getElementById('modal-ot').value,
+                note: document.getElementById('modal-note').value
+            };
+            saveRecords(recs);
+            closeModal('day-modal');
+        }
+
+        function clearDayRecord() {
+            showConfirm("Pasti mahu padam rekod hari ini?", () => {
+                const dateStr = document.getElementById('modal-date-val').value;
+                const recs = { ...state.records };
+                delete recs[dateStr];
+                saveRecords(recs);
+                closeModal('day-modal');
+            });
+        }
+
+        function showConfirm(msg, cb) {
+            document.getElementById('confirm-msg').innerText = msg;
+            state.confirmCallback = cb;
+            openModal('confirm-modal');
+        }
+        document.getElementById('confirm-btn-yes').onclick = () => {
+            if (state.confirmCallback) state.confirmCallback();
+            closeModal('confirm-modal');
+        };
+
+        function generateShiftPattern() {
+            const start = document.getElementById('pat-start').value;
+            const pattern = document.getElementById('pat-pattern').value;
+            const end = document.getElementById('pat-end').value;
+            if (!start || !pattern || !end) return;
+
+            const shifts = pattern.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+            if (!shifts.length) return;
+
+            const settings = getActiveSettings();
+            const defBiasa = settings.dayTypes.find(d => d.name.toUpperCase() === 'BIASA')?.name || 'Biasa';
+            const defOff = settings.dayTypes.find(d => d.name.toUpperCase() === 'OFFDAY')?.name || 'Offday';
+            const defRest = settings.dayTypes.find(d => d.name.toUpperCase() === 'RESTDAY')?.name || 'Restday';
+
+            let curr = new Date(start), limit = new Date(end), idx = 0;
+            const recs = { ...state.records };
+
+            while (curr <= limit) {
+                const dStr = `${curr.getFullYear()}-${(curr.getMonth() + 1).toString().padStart(2, '0')}-${curr.getDate().toString().padStart(2, '0')}`;
+                const token = shifts[idx % shifts.length];
+                let s = token, dt = defBiasa, ot = '';
+                if (token === 'OFF') { dt = defOff; s = ''; }
+                else if (token === 'REST') { dt = defRest; s = ''; }
+                else if (token.startsWith('M') || token.startsWith('N')) ot = '3';
+
+                recs[dStr] = { shift: s, dayType: dt, ot: recs[dStr]?.ot && recs[dStr].shift === s ? recs[dStr].ot : ot, note: recs[dStr]?.note || '' };
+                curr.setDate(curr.getDate() + 1); idx++;
+            }
+            saveRecords(recs);
+            closeModal('pattern-modal');
+        }
+
+        // SETTINGS MODAL
+        function openSettings() {
+            const settings = getActiveSettings();
+            document.getElementById('settings-badge').innerText = state.activeMonth;
+            document.getElementById('settings-note').innerText = `Tetapan ini HANYA untuk kitaran gaji bulan ${state.activeMonth}.`;
+            document.getElementById('set-shiftname').value = settings.shiftName || '';
+            document.getElementById('set-basic').value = settings.baseSalary;
+            document.getElementById('set-hourly').value = parseFloat(settings.baseSalary) >= 4000 ? settings.customHourlyRate : (settings.baseSalary / 26 / 8).toFixed(2);
+            document.getElementById('set-hourly').readOnly = parseFloat(settings.baseSalary) < 4000;
+            document.getElementById('set-start').value = settings.cycleStart;
+            document.getElementById('set-end').value = settings.cycleEnd;
+            document.getElementById('set-meal').value = settings.mealAllowance;
+
+            renderSettingsForm();
+            openModal('settings-modal');
+        }
+
+        function updateSetting(field, val) {
+            modifySettings(s => { s[field] = val; });
+        }
+
+        function renderSettingsForm() {
+            const settings = getActiveSettings();
+            
+            // DayTypes
+            document.getElementById('settings-daytypes-list').innerHTML = settings.dayTypes.map(dt => `
+                <div class="bg-zinc-900/80 p-2.5 rounded-lg border border-zinc-800/60 space-y-2">
+                    <div class="flex gap-2 items-center">
+                        <input type="text" value="${dt.name}" onchange="updateDayType(${dt.id}, 'name', this.value)" class="flex-1 bg-zinc-800 border border-zinc-700 rounded p-1.5 text-sm text-white" />
+                        <button onclick="removeDayType(${dt.id})" class="p-1.5 text-rose-400 bg-rose-500/10 rounded text-xs">🗑️</button>
+                    </div>
+                    <label class="text-[10px] text-zinc-400 flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" ${dt.isTiered ? 'checked' : ''} onchange="updateDayType(${dt.id}, 'isTiered', this.checked)" class="accent-amber-500" /> Kadar Bertingkat?
+                    </label>
+                    ${!dt.isTiered ? `
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-zinc-500 uppercase">Kadar:</span>
+                            <input type="number" step="0.5" value="${dt.rate}" onchange="updateDayType(${dt.id}, 'rate', this.value)" class="w-14 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center tnum" />
+                            <span class="text-[10px] text-zinc-500 uppercase">× Asas</span>
+                        </div>
+                    ` : `
+                        <div class="flex flex-col gap-1.5 bg-[#0f0f10] p-2 rounded border border-zinc-800">
+                            <div class="flex items-center gap-2">
+                                <input type="number" value="${dt.tier1Hours}" onchange="updateDayType(${dt.id}, 'tier1Hours', this.value)" class="w-11 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center tnum" />
+                                <span class="text-[9px] text-zinc-500">jam pertama ×</span>
+                                <input type="number" step="0.5" value="${dt.tier1Rate}" onchange="updateDayType(${dt.id}, 'tier1Rate', this.value)" class="w-14 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center tnum" />
+                            </div>
+                        </div>
+                    `}
+                </div>
+            `).join('');
+
+            // Allowances Grid
+            document.getElementById('settings-allowances-grid').innerHTML = Object.keys(defaultMonthSettings.allowances).map(k => `
+                <div>
+                    <label class="text-[9px] text-zinc-500 uppercase">${k}</label>
+                    <input type="number" value="${settings.allowances[k]}" onchange="modifySettings(s => s.allowances['${k}'] = this.value)" class="w-full bg-zinc-900 border border-zinc-700 rounded-md p-1.5 mt-1 text-sm text-white text-center tnum" />
+                </div>
+            `).join('');
+
+            // Custom Allowances
+            document.getElementById('settings-custom-allowances-list').innerHTML = (settings.customAllowances || []).map(a => `
+                <div class="flex gap-2 bg-zinc-900 p-1.5 rounded-md border border-zinc-800/60 items-center">
+                    <input type="text" value="${a.name}" onchange="updateCustomAlo(${a.id}, 'name', this.value)" placeholder="Nama" class="flex-1 bg-transparent text-white text-xs outline-none px-1.5" />
+                    <input type="number" value="${a.amount}" onchange="updateCustomAlo(${a.id}, 'amount', this.value)" placeholder="RM" class="w-20 bg-zinc-800 border border-zinc-700 text-white rounded p-1 text-xs text-right tnum" />
+                    <button onclick="removeCustomAlo(${a.id})" class="p-1.5 text-rose-400 bg-rose-500/10 rounded text-xs">🗑️</button>
+                </div>
+            `).join('');
+
+            // Deductions
+            document.getElementById('settings-deductions-list').innerHTML = (settings.deductions || []).map(d => `
+                <div class="flex gap-2 bg-zinc-900 p-1.5 rounded-md border border-zinc-800/60 items-center">
+                    <input type="text" value="${d.name}" onchange="updateDed(${d.id}, 'name', this.value)" placeholder="Nama" class="flex-1 bg-transparent text-white text-xs outline-none px-1.5" />
+                    <input type="number" value="${d.amount}" onchange="updateDed(${d.id}, 'amount', this.value)" placeholder="RM" class="w-20 bg-zinc-800 border border-zinc-700 text-white rounded p-1 text-xs text-right tnum" />
+                    <button onclick="removeDed(${d.id})" class="p-1.5 text-rose-400 bg-rose-500/10 rounded text-xs">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        // Settings Helpers
+        function addDayType() { modifySettings(s => s.dayTypes.push({ id: Date.now(), name: 'Baru', isTiered: false, rate: 1.5, tier1Hours: 8, tier1Rate: 2.0, tier2Rate: 3.0 })); renderSettingsForm(); }
+        function updateDayType(id, f, v) { modifySettings(s => { const dt = s.dayTypes.find(x => x.id === id); if (dt) dt[f] = v; }); renderSettingsForm(); }
+        function removeDayType(id) { showConfirm("Pasti mahu padam jenis hari ini?", () => { modifySettings(s => s.dayTypes = s.dayTypes.filter(x => x.id !== id)); renderSettingsForm(); }); }
+        
+        function addCustomAllowance() { modifySettings(s => s.customAllowances.push({ id: Date.now(), name: '', amount: '' })); renderSettingsForm(); }
+        function updateCustomAlo(id, f, v) { modifySettings(s => { const a = s.customAllowances.find(x => x.id === id); if (a) a[f] = v; }); }
+        function removeCustomAlo(id) { showConfirm("Pasti mahu padam elaun ini?", () => { modifySettings(s => s.customAllowances = s.customAllowances.filter(x => x.id !== id)); renderSettingsForm(); }); }
+
+        function addDeduction() { modifySettings(s => s.deductions.push({ id: Date.now(), name: '', amount: '' })); renderSettingsForm(); }
+        function updateDed(id, f, v) { modifySettings(s => { const d = s.deductions.find(x => x.id === id); if (d) d[f] = v; }); }
+        function removeDed(id) { showConfirm("Pasti mahu padam potongan ini?", () => { modifySettings(s => s.deductions = s.deductions.filter(x => x.id !== id)); renderSettingsForm(); }); }
+
+        // Breakdown
+        function openBreakdownModal(type) {
+            const sum = window.lastSummary;
+            if (!sum) return;
+            document.getElementById('breakdown-title').innerText = type === 'ot' ? 'Perincian OT' : 'Perincian Elaun';
+            let html = '';
+
+            if (type === 'ot') {
+                html += `<div class="flex justify-between text-xs items-center border-b border-zinc-800 pb-2.5 mb-1"><span class="text-zinc-400">Kadar Asas/Jam</span><span class="font-semibold text-white tnum">${formatRM(sum.baseRate)}</span></div>`;
+                Object.keys(sum.otBreakdown).sort().forEach(k => {
+                    const data = sum.otBreakdown[k];
+                    if (data.hours > 0) {
+                        html += `<div class="flex justify-between items-center text-xs"><span class="text-zinc-300">${k}x <span class="text-zinc-500 tnum">(${data.hours}j)</span></span><span class="font-semibold text-amber-400 tnum">${formatRM(data.amount)}</span></div>`;
+                    }
+                });
+                html += `<div class="flex justify-between items-center text-xs uppercase tracking-wider font-semibold border-t border-zinc-800 pt-2.5 mt-1 text-amber-400"><span>Jumlah OT</span><span class="tnum">${formatRM(sum.totalOtAmt)}</span></div>`;
+            } else {
+                html += `<h4 class="text-[9px] text-zinc-500 uppercase border-b border-zinc-800 pb-1 font-semibold">Elaun Syif & Meal</h4>`;
+                Object.keys(sum.settings.allowances).forEach(k => {
+                    const count = sum.shiftCounts[k] || 0;
+                    if (count > 0) {
+                        const rate = parseFloat(sum.settings.allowances[k]) || 0;
+                        html += `<div class="flex justify-between items-center text-xs pl-2"><span class="text-zinc-300">Syif ${k} <span class="text-zinc-500 tnum">(${count}×${formatRM(rate)})</span></span><span class="font-semibold text-cyan-400 tnum">${formatRM(count * rate)}</span></div>`;
+                    }
+                });
+                if (sum.mealCount > 0) {
+                    html += `<div class="flex justify-between items-center text-xs pl-2 mt-1"><span class="text-zinc-300">Meal N <span class="text-zinc-500 tnum">(${sum.mealCount}×${formatRM(sum.settings.mealAllowance)})</span></span><span class="font-semibold text-cyan-400 tnum">${formatRM(sum.mealTotal)}</span></div>`;
+                }
+                html += `<div class="flex justify-between items-center text-xs uppercase tracking-wider font-semibold pt-2.5 mt-2 border-t border-zinc-800 text-cyan-400"><span>Jumlah Elaun</span><span class="tnum">${formatRM(sum.totalShiftAllow)}</span></div>`;
+            }
+
+            document.getElementById('breakdown-content').innerHTML = html;
+            openModal('breakdown-modal');
+        }
+
+        // Export / Import
+        function exportData() {
+            const data = { version: '1.1', timestamp: new Date().toISOString(), monthlySettings: state.monthlySettings, records: state.records };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `komez_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        }
+
+        function importData(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    if (parsed.monthlySettings && parsed.records) {
+                        state.monthlySettings = parsed.monthlySettings;
+                        saveRecords(parsed.records);
+                        localStorage.setItem('komez_monthly_settings', JSON.stringify(parsed.monthlySettings));
+                        closeModal('settings-modal');
+                    }
+                } catch(err) { alert('Fail tidak sah'); }
+            };
+            reader.readAsText(file); e.target.value = null;
+        }
+
+        // PWA INSTALL LOGIC
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            const btnInstall = document.getElementById('btn-install');
-            if (btnInstall) btnInstall.classList.remove('hidden');
+            document.getElementById('btn-install').classList.remove('hidden');
         });
 
         async function installPWA() {
@@ -381,648 +907,6 @@
                 document.getElementById('btn-install').classList.add('hidden');
             }
             deferredPrompt = null;
-        }
-
-        window.addEventListener('appinstalled', () => {
-            const btnInstall = document.getElementById('btn-install');
-            if (btnInstall) btnInstall.classList.add('hidden');
-            deferredPrompt = null;
-        });
-
-        // --- INIT ---
-        window.onload = () => {
-            try {
-                const savedMonthly = localStorage.getItem('komez_monthly_settings');
-                if (savedMonthly) state.monthlySettings = JSON.parse(savedMonthly);
-                
-                const savedRecords = localStorage.getItem('komez_shift_records');
-                if (savedRecords) state.records = JSON.parse(savedRecords);
-            } catch (e) { console.error(e); }
-
-            getActiveSettings();
-
-            const d = new Date();
-            document.getElementById('calc-month').value = state.activeMonth;
-            document.getElementById('pat-start').value = getFullDateStr(d.getFullYear(), d.getMonth(), d.getDate());
-            document.getElementById('pat-end').value = getFullDateStr(d.getFullYear(), d.getMonth(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
-            document.getElementById('pat-pattern').value = 'M, M, M, M, OFF, REST, N, N, N, N, OFF, REST';
-
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('bottom-nav').classList.remove('hidden');
-
-            setupSwipeGesture();
-            refreshApp();
-        };
-
-        // --- SETTINGS RESOLUTION ---
-        function getActiveSettings() {
-            if (state.monthlySettings[state.activeMonth]) return state.monthlySettings[state.activeMonth];
-            
-            const pastMonths = Object.keys(state.monthlySettings).filter(m => m < state.activeMonth).sort();
-            let resolved = null;
-            if (pastMonths.length > 0) {
-                resolved = JSON.parse(JSON.stringify(state.monthlySettings[pastMonths[pastMonths.length - 1]]));
-            } else {
-                resolved = JSON.parse(JSON.stringify(defaultMonthSettings));
-            }
-            state.monthlySettings[state.activeMonth] = resolved;
-            localStorage.setItem('komez_monthly_settings', JSON.stringify(state.monthlySettings));
-            return resolved;
-        }
-
-        function refreshApp() {
-            const actSet = getActiveSettings();
-            document.getElementById('header-title').innerText = actSet.shiftName || 'Jadual Syif Q';
-            
-            const monthNum = state.activeMonth.split('-')[1];
-            document.getElementById('header-month-badge').innerText = parseInt(monthNum);
-            
-            document.getElementById('calc-month').value = state.activeMonth;
-            
-            renderCalendar();
-            renderSalary();
-        }
-
-        // --- DATA SAVING ---
-        function saveSettings() {
-            localStorage.setItem('komez_monthly_settings', JSON.stringify(state.monthlySettings));
-        }
-        function saveRecords() {
-            localStorage.setItem('komez_shift_records', JSON.stringify(state.records));
-        }
-
-        // --- SWIPE GESTURE ---
-        function setupSwipeGesture() {
-            const container = document.getElementById('view-calendar');
-            let touchStart = null;
-            let touchEnd = null;
-
-            container.addEventListener('touchstart', e => {
-                touchEnd = null;
-                touchStart = e.targetTouches[0].clientX;
-            }, {passive: true});
-
-            container.addEventListener('touchmove', e => {
-                touchEnd = e.targetTouches[0].clientX;
-            }, {passive: true});
-
-            container.addEventListener('touchend', () => {
-                if (!touchStart || !touchEnd) return;
-                const distance = touchStart - touchEnd;
-                const limit = 50;
-                
-                if (distance > limit) {
-                    shiftMonth(1); 
-                } else if (distance < -limit) {
-                    shiftMonth(-1); 
-                }
-            }, {passive: true});
-        }
-
-        // --- BACKUP & RESTORE ---
-        function exportData() {
-            const dataToExport = { version: '1.1', timestamp: new Date().toISOString(), monthlySettings: state.monthlySettings, records: state.records };
-            const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `komez_backup_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (importedData.monthlySettings && importedData.records) {
-                        state.monthlySettings = importedData.monthlySettings;
-                        state.records = importedData.records;
-                        saveSettings();
-                        saveRecords();
-                        alert('Data berjaya dipulihkan (Restore).');
-                        location.reload(); 
-                    } else { alert('Format fail tidak sah.'); }
-                } catch (err) { alert('Ralat membaca fail.'); }
-            };
-            reader.readAsText(file);
-            event.target.value = null; 
-        }
-
-        // --- UI TOGGLES ---
-        function switchView(view) {
-            state.activeView = view;
-            const btnCal = document.getElementById('nav-calendar');
-            const btnSal = document.getElementById('nav-salary');
-            const vCal = document.getElementById('view-calendar');
-            const vSal = document.getElementById('view-salary');
-            
-            if (view === 'calendar') {
-                vCal.classList.remove('hidden'); vSal.classList.add('hidden');
-                btnCal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-emerald-400 bg-emerald-400/10";
-                btnSal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-zinc-500";
-                document.getElementById('btn-pattern').classList.remove('hidden');
-                refreshApp();
-            } else {
-                vCal.classList.add('hidden'); vSal.classList.remove('hidden');
-                btnSal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-emerald-400 bg-emerald-400/10";
-                btnCal.className = "flex flex-col items-center gap-1 p-2 w-24 rounded-xl transition text-zinc-500";
-                document.getElementById('header-title').innerText = "Kira Gaji";
-                document.getElementById('btn-pattern').classList.add('hidden');
-                refreshApp();
-            }
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        function showConfirm(msg, onConfirmFn) {
-            document.getElementById('confirm-message').innerText = msg;
-            state.confirmAction = onConfirmFn;
-            openModal('confirm-modal');
-        }
-        function closeConfirmModal() {
-            state.confirmAction = null;
-            closeModal('confirm-modal');
-        }
-        document.getElementById('btn-confirm-yes').addEventListener('click', () => {
-            if(state.confirmAction) state.confirmAction();
-            closeConfirmModal();
-        });
-
-        // --- CALENDAR LOGIC ---
-        function shiftMonth(offset) {
-            const [yStr, mStr] = state.activeMonth.split('-');
-            const d = new Date(parseInt(yStr), parseInt(mStr) - 1 + offset, 1);
-            state.activeMonth = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-            refreshApp();
-        }
-
-        function renderCalendar() {
-            if(state.activeView !== 'calendar') return;
-            const [yStr, mStr] = state.activeMonth.split('-');
-            const y = parseInt(yStr), m = parseInt(mStr) - 1;
-            document.getElementById('cal-month-year').innerText = `${monthNames[m]} ${y}`;
-
-            const firstDay = new Date(y, m, 1).getDay();
-            const daysInMonth = new Date(y, m + 1, 0).getDate();
-            const todayStr = new Date().toDateString();
-
-            let html = '';
-            for (let i = 0; i < firstDay; i++) html += `<div class="bg-[#121212]"></div>`;
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                const dateStr = getFullDateStr(y, m, i);
-                const rec = state.records[dateStr] || {};
-                const isToday = new Date(y, m, i).toDateString() === todayStr;
-                
-                const dt = (rec.dayType || 'Biasa').toUpperCase();
-                const s = (rec.shift || '').toUpperCase();
-                const isOffOrRest = dt.includes('OFF') || dt.includes('REST');
-
-                let sClass = 'bg-[#1e1e1e] text-zinc-300 border-zinc-800';
-                if (isOffOrRest) sClass = 'bg-zinc-400 text-black border-zinc-500';
-                else if (s.startsWith('M')) sClass = 'bg-emerald-800 text-white border-emerald-900';
-                else if (s.startsWith('N')) sClass = 'bg-zinc-700 text-white border-zinc-800';
-
-                const todayBadge = isToday ? 'bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center leading-none' : '';
-                const otBadge = parseNum(rec.ot) > 0 ? `<span class="text-[10px] font-normal bg-amber-400 text-black px-1.5 py-[1px] rounded-sm shadow-sm leading-none mt-0.5">${rec.ot}</span>` : '';
-                
-                let midHtml = '';
-                if(isOffOrRest) {
-                    midHtml += `<span class="text-sm font-normal uppercase tracking-widest text-black/70 absolute">${dt.includes('OFF') ? 'OFF' : 'REST'}</span>`;
-                    if(s && s !== 'OFF' && s !== 'REST') {
-                        const bClass = s.startsWith('M') ? 'bg-emerald-700' : 'bg-zinc-800 border border-zinc-600';
-                        midHtml += `<span class="text-[10px] px-1.5 py-[2px] rounded shadow-sm font-normal text-white z-20 mt-3 ${bClass}">${s}</span>`;
-                    }
-                } else {
-                    midHtml = `<span class="text-[11px] sm:text-sm font-normal uppercase tracking-wide opacity-90">${s}</span>`;
-                }
-
-                const noteHtml = rec.note ? `<div class="mt-auto w-full bg-white text-black text-[9px] px-1 py-0.5 rounded shadow truncate font-normal text-center z-10 relative">${rec.note}</div>` : '';
-
-                html += `
-                <div onclick="openDayModal('${dateStr}')" class="relative flex flex-col p-1 sm:p-2 cursor-pointer transition min-h-[95px] sm:min-h-[110px] hover:opacity-80 active:scale-95 border ${sClass}">
-                    <div class="flex justify-between items-start z-10 w-full">
-                        <span class="text-xs sm:text-sm font-bold ${todayBadge}">${i}</span>
-                        ${otBadge}
-                    </div>
-                    <div class="flex-1 flex flex-col items-center justify-center w-full z-10 my-1 relative">
-                       ${midHtml}
-                    </div>
-                    ${noteHtml}
-                </div>`;
-            }
-            document.getElementById('calendar-grid').innerHTML = html;
-        }
-
-        // --- SALARY & SUMMARY LOGIC ---
-        function updateCalcMonth() {
-            state.activeMonth = document.getElementById('calc-month').value;
-            refreshApp();
-        }
-
-        function renderSalary() {
-            if(state.activeView !== 'salary') return;
-            const actSet = getActiveSettings();
-            
-            const startC = parseNum(actSet.cycleStart) || 1;
-            const endC = parseNum(actSet.cycleEnd) || 31;
-            document.getElementById('calc-cycle-desc').innerHTML = `${startC}hb sehingga ${endC}hb <span class="text-cyan-600 ml-2">(Tetapan Bulan: ${state.activeMonth})</span>`;
-
-            const [yStr, mStr] = state.activeMonth.split('-');
-            const y = parseInt(yStr), m = parseInt(mStr) - 1;
-            
-            let startD, endD;
-            if (startC > endC) { startD = new Date(y, m - 1, startC); endD = new Date(y, m, endC); } 
-            else { startD = new Date(y, m, startC); endD = new Date(y, m, endC); }
-
-            let html = '';
-            let curr = new Date(startD);
-            let count = 0;
-            const cycleDates = [];
-
-            while (curr <= endD && count < 40) {
-                const dateStr = getFullDateStr(curr.getFullYear(), curr.getMonth(), curr.getDate());
-                const isSun = curr.getDay() === 0;
-                const formatted = `${curr.getDate().toString().padStart(2, '0')}/${(curr.getMonth() + 1).toString().padStart(2, '0')}`;
-                cycleDates.push(dateStr);
-                
-                const rec = state.records[dateStr] || {};
-                html += `
-                <tr class="hover:bg-zinc-800/30 ${isSun ? 'bg-rose-950/10' : ''}">
-                    <td class="p-3 whitespace-nowrap text-zinc-300 text-xs">${formatted}</td>
-                    <td class="p-3 text-center text-xs text-zinc-400">${rec.dayType || '-'}</td>
-                    <td class="p-3 text-center text-emerald-400">${rec.shift || '-'}</td>
-                    <td class="p-3 text-center text-amber-400">${rec.ot || '-'}</td>
-                    <td class="p-3 text-zinc-500 text-xs italic truncate max-w-[100px]">${rec.note || ''}</td>
-                </tr>`;
-                
-                curr.setDate(curr.getDate() + 1);
-                count++;
-            }
-            if(count === 0) html = `<tr><td colSpan="5" class="p-4 text-center text-zinc-500">Tiada data</td></tr>`;
-            document.getElementById('salary-tbody').innerHTML = html;
-
-            calculateSummary(cycleDates, actSet);
-        }
-
-        function calculateSummary(cycleDates, actSet) {
-            const basic = parseNum(actSet.baseSalary);
-            const custom = parseNum(actSet.customHourlyRate);
-            let baseRate = (basic >= 4000 && custom > 0) ? custom : basic / 26 / 8;
-
-            let totalOtAmount = 0, totalOtHours = 0, totalShiftAllowance = 0, mealNCount = 0;
-            let dynamicOtBreakdown = {};
-            let shiftCounts = {};
-
-            const addOt = (rate, hrs, amt) => {
-                const k = rate.toFixed(1);
-                if (!dynamicOtBreakdown[k]) dynamicOtBreakdown[k] = { hours: 0, amount: 0 };
-                dynamicOtBreakdown[k].hours += hrs;
-                dynamicOtBreakdown[k].amount += amt;
-                totalOtAmount += amt;
-            };
-
-            cycleDates.forEach(dStr => {
-                const rec = state.records[dStr] || {};
-                const shiftUpper = (rec.shift || '').toUpperCase();
-                const dtUpper = (rec.dayType || 'Biasa').toUpperCase();
-                const otHours = parseNum(rec.ot);
-
-                if (shiftUpper && shiftUpper !== 'OFF' && shiftUpper !== 'REST') {
-                    shiftCounts[shiftUpper] = (shiftCounts[shiftUpper] || 0) + 1;
-                    if (actSet.allowances[shiftUpper] !== undefined) {
-                        totalShiftAllowance += parseNum(actSet.allowances[shiftUpper]);
-                    }
-                    if (shiftUpper.startsWith('N')) mealNCount++;
-                }
-
-                if (otHours > 0) {
-                    totalOtHours += otHours;
-                    let dtConf = actSet.dayTypes.find(dt => dt.name.toUpperCase() === dtUpper) || { name: 'Biasa', isTiered: false, rate: 1.5 };
-                    
-                    if (dtConf.isTiered) {
-                        const limit = parseNum(dtConf.tier1Hours) || 8;
-                        const r1 = parseNum(dtConf.tier1Rate) || 2.0;
-                        const r2 = parseNum(dtConf.tier2Rate) || 3.0;
-                        const t1Hrs = Math.min(otHours, limit);
-                        const t2Hrs = Math.max(0, otHours - limit);
-                        if (t1Hrs > 0) addOt(r1, t1Hrs, t1Hrs * baseRate * r1);
-                        if (t2Hrs > 0) addOt(r2, t2Hrs, t2Hrs * baseRate * r2);
-                    } else {
-                        const r = parseNum(dtConf.rate) || 1.5;
-                        addOt(r, otHours, otHours * baseRate * r);
-                    }
-                }
-            });
-
-            const totalMealAllowance = mealNCount * parseNum(actSet.mealAllowance);
-            const totalExtraAllowances = (actSet.customAllowances || []).reduce((sum, a) => sum + parseNum(a.amount), 0);
-            
-            totalShiftAllowance = totalShiftAllowance + totalMealAllowance + totalExtraAllowances;
-            
-            const totalDeductions = (actSet.deductions || []).reduce((sum, d) => sum + parseNum(d.amount), 0);
-            const gross = basic + totalOtAmount + totalShiftAllowance;
-            const net = gross - totalDeductions;
-
-            state.lastSummary = { baseRate, totalOtAmount, totalShiftAllowance, totalExtraAllowances, shiftCounts, otBreakdown: dynamicOtBreakdown, mealNCount, totalMealAllowance, activeSet: actSet };
-
-            document.getElementById('sum-basic').innerText = formatRM(basic);
-            document.getElementById('sum-allowance').innerText = formatRM(totalShiftAllowance);
-            document.getElementById('sum-ot').innerText = formatRM(totalOtAmount);
-            document.getElementById('sum-gross').innerText = formatRM(gross);
-            document.getElementById('sum-deductions').innerText = formatRM(totalDeductions); 
-            document.getElementById('sum-net').innerText = formatRM(net);
-        }
-
-        // --- MODALS ACTION ---
-        function openDayModal(dateStr) {
-            const actSet = getActiveSettings();
-            const fbDt = actSet.dayTypes.length > 0 ? actSet.dayTypes[0].name : 'Biasa';
-            const data = state.records[dateStr] || { shift: '', dayType: fbDt, ot: '', note: '' };
-            
-            document.getElementById('day-modal-title').innerText = dateStr;
-            document.getElementById('modal-date').value = dateStr;
-            
-            const selDt = document.getElementById('modal-daytype');
-            selDt.innerHTML = actSet.dayTypes.map(dt => `<option value="${dt.name}">${dt.name}</option>`).join('');
-            selDt.value = data.dayType || fbDt;
-            
-            document.getElementById('modal-shift').value = data.shift;
-            document.getElementById('modal-ot').value = data.ot;
-            document.getElementById('modal-note').value = data.note;
-            
-            openModal('day-modal');
-        }
-
-        function autoOT() {
-            const shift = document.getElementById('modal-shift').value.toUpperCase();
-            const otInp = document.getElementById('modal-ot');
-            if (shift.startsWith('M') || shift.startsWith('N')) {
-                if (!otInp.value) otInp.value = '3';
-            } else if (!shift || shift === 'OFF' || shift === 'REST') {
-                otInp.value = '';
-            }
-        }
-
-        function saveDayModal() {
-            const dateStr = document.getElementById('modal-date').value;
-            state.records[dateStr] = {
-                shift: document.getElementById('modal-shift').value,
-                dayType: document.getElementById('modal-daytype').value,
-                ot: document.getElementById('modal-ot').value,
-                note: document.getElementById('modal-note').value
-            };
-            saveRecords();
-            closeModal('day-modal');
-            refreshApp();
-        }
-
-        function clearDayRecord() {
-            showConfirm("Pasti mahu padam rekod hari ini?", () => {
-                const dateStr = document.getElementById('modal-date').value;
-                delete state.records[dateStr];
-                saveRecords();
-                closeModal('day-modal');
-                refreshApp();
-            });
-        }
-
-        function generateShiftPattern() {
-            const sDate = document.getElementById('pat-start').value;
-            const pat = document.getElementById('pat-pattern').value;
-            const eDate = document.getElementById('pat-end').value;
-            if(!sDate || !pat || !eDate) return alert("Sila isi semua");
-            
-            const shifts = pat.split(',').map(s => s.trim().toUpperCase()).filter(s => s);
-            if(shifts.length === 0) return;
-
-            const actSet = getActiveSettings();
-            let curr = new Date(sDate);
-            const limit = new Date(eDate);
-            let idx = 0;
-            const defBiasa = actSet.dayTypes.find(d => d.name.toUpperCase()==='BIASA')?.name || 'Biasa';
-            const defOff = actSet.dayTypes.find(d => d.name.toUpperCase()==='OFFDAY')?.name || 'Offday';
-            const defRest = actSet.dayTypes.find(d => d.name.toUpperCase()==='RESTDAY')?.name || 'Restday';
-
-            while(curr <= limit) {
-                const dStr = getFullDateStr(curr.getFullYear(), curr.getMonth(), curr.getDate());
-                const token = shifts[idx % shifts.length];
-                
-                let nShift = token, nDt = defBiasa, nOt = '';
-                if (token === 'OFF') { nDt = defOff; nShift = ''; nOt = ''; }
-                else if (token === 'REST') { nDt = defRest; nShift = ''; nOt = ''; }
-                else if (token.startsWith('M') || token.startsWith('N')) { nOt = '3'; }
-
-                if(!state.records[dStr]) state.records[dStr] = { shift: '', dayType: '', ot: '', note: '' };
-                const oldRec = state.records[dStr];
-                
-                oldRec.shift = nShift;
-                oldRec.dayType = nDt;
-                if(!(oldRec.ot && oldRec.shift === nShift)) oldRec.ot = nOt;
-
-                curr.setDate(curr.getDate() + 1);
-                idx++;
-            }
-            saveRecords();
-            closeModal('pattern-modal');
-            refreshApp();
-        }
-
-        // --- MONTHLY SETTINGS LOGIC ---
-        function mutateSetting(modifierFn) {
-            const actSet = getActiveSettings();
-            modifierFn(actSet);
-            state.monthlySettings[state.activeMonth] = actSet;
-        }
-
-        function openSettings() {
-            const actSet = getActiveSettings();
-            
-            document.getElementById('settings-badge').innerText = `UNTUK: ${state.activeMonth}`;
-            document.getElementById('settings-note').innerText = `Semua tetapan ini HANYA digunakan untuk kitaran gaji bulan ${state.activeMonth}. Rekod bulan lain tidak akan terjejas.`;
-            
-            document.getElementById('set-shiftname').value = actSet.shiftName || '';
-            document.getElementById('set-basic').value = actSet.baseSalary;
-            document.getElementById('set-startcycle').value = actSet.cycleStart;
-            document.getElementById('set-endcycle').value = actSet.cycleEnd;
-            document.getElementById('set-meal').value = actSet.mealAllowance;
-            updateCustomRateUI(actSet.baseSalary, actSet.customHourlyRate);
-            
-            renderSetDayTypes(actSet.dayTypes);
-            renderSetAllowances(actSet.allowances);
-            renderSetCustomAllowances(actSet.customAllowances || []);
-            renderSetDeductions(actSet.deductions || []);
-            
-            openModal('settings-modal');
-        }
-
-        function updateCustomRateUI(b = null, c = null) {
-            const basic = parseNum(b || document.getElementById('set-basic').value);
-            const crInp = document.getElementById('set-customrate');
-            if (basic >= 4000) {
-                crInp.readOnly = false;
-                crInp.value = c !== null ? c : (basic/26/8).toFixed(2);
-                crInp.classList.remove('bg-[#121212]', 'border-zinc-800', 'text-zinc-500');
-                crInp.classList.add('bg-zinc-900', 'border-zinc-700', 'focus:border-emerald-500');
-            } else {
-                crInp.readOnly = true;
-                crInp.value = (basic/26/8).toFixed(2);
-                crInp.classList.add('bg-[#121212]', 'border-zinc-800', 'text-zinc-500');
-                crInp.classList.remove('bg-zinc-900', 'border-zinc-700', 'focus:border-emerald-500');
-            }
-        }
-
-        function renderSetDayTypes(dtList) {
-            const div = document.getElementById('settings-daytypes');
-            div.innerHTML = dtList.map(dt => `
-                <div class="bg-zinc-900/80 p-3 rounded-lg border border-zinc-800 space-y-3">
-                    <div class="flex gap-2 items-center">
-                        <input type="text" value="${dt.name}" onchange="updateSetDayType(${dt.id}, 'name', this.value)" class="flex-1 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm font-normal outline-none focus:border-amber-500" />
-                        <button onclick="removeSetDayType(${dt.id})" class="p-1.5 text-rose-500 bg-rose-500/10 rounded hover:bg-rose-500/20">🗑️</button>
-                    </div>
-                    <div class="flex items-center gap-2 px-1">
-                       <label class="text-[11px] text-zinc-400 flex items-center gap-2 cursor-pointer font-normal">
-                         <input type="checkbox" ${dt.isTiered ? 'checked' : ''} onchange="updateSetDayType(${dt.id}, 'isTiered', this.checked)" class="accent-amber-500" />
-                         Kadar Bertingkat (Tiered)?
-                       </label>
-                    </div>
-                    ${!dt.isTiered ? `
-                       <div class="flex items-center gap-2 px-1">
-                          <span class="text-xs text-zinc-500 uppercase">Kadar OT:</span>
-                          <input type="number" step="0.5" value="${dt.rate}" onchange="updateSetDayType(${dt.id}, 'rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none focus:border-amber-500 font-normal" />
-                          <span class="text-xs text-zinc-500 uppercase">x Asas</span>
-                       </div>
-                    ` : `
-                       <div class="flex flex-col gap-2 bg-[#121212] p-2.5 rounded border border-zinc-800">
-                          <div class="flex items-center gap-2">
-                            <input type="number" value="${dt.tier1Hours}" onchange="updateSetDayType(${dt.id}, 'tier1Hours', this.value)" class="w-12 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none font-normal" />
-                            <span class="text-[10px] text-zinc-500 leading-tight font-normal">jam pertama (Kadar:</span>
-                            <input type="number" step="0.5" value="${dt.tier1Rate}" onchange="updateSetDayType(${dt.id}, 'tier1Rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none font-normal" />)
-                          </div>
-                          <div class="flex items-center gap-2 pt-1 border-t border-zinc-800/50">
-                            <span class="text-[10px] text-zinc-500 flex-1 font-normal">Baki jam (Kadar:</span>
-                            <input type="number" step="0.5" value="${dt.tier2Rate}" onchange="updateSetDayType(${dt.id}, 'tier2Rate', this.value)" class="w-16 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-center outline-none font-normal" />)
-                          </div>
-                       </div>
-                    `}
-                </div>
-            `).join('');
-        }
-        function addDayType() { mutateSetting(s => s.dayTypes.push({ id: Date.now(), name: 'Baru', isTiered: false, rate: 1.5, tier1Hours: 8, tier1Rate: 2.0, tier2Rate: 3.0 })); renderSetDayTypes(getActiveSettings().dayTypes); }
-        function updateSetDayType(id, field, val) { mutateSetting(s => { const dt = s.dayTypes.find(d => d.id === id); if(dt) dt[field] = val; }); if(field === 'isTiered') renderSetDayTypes(getActiveSettings().dayTypes); }
-        function removeSetDayType(id) { showConfirm("Pasti mahu padam jenis hari ini?", () => { mutateSetting(s => s.dayTypes = s.dayTypes.filter(d => d.id !== id)); renderSetDayTypes(getActiveSettings().dayTypes); }); }
-
-        function renderSetAllowances(allowances) {
-            const div = document.getElementById('settings-allowances');
-            div.innerHTML = Object.keys(allowances).map(k => `
-                <div>
-                    <label class="text-[10px] text-zinc-400 uppercase font-bold">${k}</label>
-                    <input type="number" value="${allowances[k]}" onchange="mutateSetting(s => s.allowances['${k}'] = this.value)" class="w-full bg-zinc-900 border border-zinc-700 text-white rounded p-2 mt-1 text-sm text-center font-normal outline-none focus:border-cyan-500" />
-                </div>
-            `).join('');
-        }
-
-        function renderSetCustomAllowances(caList) {
-            const div = document.getElementById('settings-custom-allowances');
-            div.innerHTML = caList.map(a => `
-                <div class="flex gap-2 bg-zinc-900 p-2 rounded border border-zinc-800 items-center">
-                    <input type="text" value="${a.name}" onchange="updateCustomAllowance(${a.id}, 'name', this.value)" placeholder="Nama Elaun" class="flex-1 bg-transparent text-white text-sm outline-none px-2 focus:text-blue-400 font-normal" />
-                    <input type="number" value="${a.amount}" onchange="updateCustomAllowance(${a.id}, 'amount', this.value)" placeholder="RM" class="w-24 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-right outline-none font-normal" />
-                    <button onclick="removeCustomAllowance(${a.id})" class="p-2 text-rose-500 bg-rose-500/10 rounded hover:bg-rose-500/20">🗑️</button>
-                </div>
-            `).join('');
-        }
-        function addCustomAllowance() { mutateSetting(s => s.customAllowances.push({ id: Date.now(), name: '', amount: '' })); renderSetCustomAllowances(getActiveSettings().customAllowances); }
-        function updateCustomAllowance(id, field, val) { mutateSetting(s => { const a = s.customAllowances.find(x => x.id === id); if(a) a[field] = val; }); }
-        function removeCustomAllowance(id) { showConfirm("Pasti mahu padam elaun ini?", () => { mutateSetting(s => s.customAllowances = s.customAllowances.filter(x => x.id !== id)); renderSetCustomAllowances(getActiveSettings().customAllowances); }); }
-
-        function renderSetDeductions(dList) {
-            const div = document.getElementById('settings-deductions');
-            div.innerHTML = dList.map(d => `
-                <div class="flex gap-2 bg-zinc-900 p-2 rounded border border-zinc-800 items-center">
-                    <input type="text" value="${d.name}" onchange="updateDed(${d.id}, 'name', this.value)" placeholder="Nama Potongan" class="flex-1 bg-transparent text-white text-sm outline-none px-2 focus:text-rose-400 font-normal" />
-                    <input type="number" value="${d.amount}" onchange="updateDed(${d.id}, 'amount', this.value)" placeholder="RM" class="w-24 bg-zinc-800 border border-zinc-700 text-white rounded p-1.5 text-sm text-right outline-none font-normal" />
-                    <button onclick="removeDed(${d.id})" class="p-2 text-rose-500 bg-rose-500/10 rounded hover:bg-rose-500/20">🗑️</button>
-                </div>
-            `).join('');
-        }
-        function addDeduction() { mutateSetting(s => s.deductions.push({ id: Date.now(), name: '', amount: '' })); renderSetDeductions(getActiveSettings().deductions); }
-        function updateDed(id, field, val) { mutateSetting(s => { const d = s.deductions.find(x => x.id === id); if(d) d[field] = val; }); }
-        function removeDed(id) { showConfirm("Pasti mahu padam potongan ini?", () => { mutateSetting(s => s.deductions = s.deductions.filter(x => x.id !== id)); renderSetDeductions(getActiveSettings().deductions); }); }
-
-        function saveAndCloseSettings() {
-            mutateSetting(s => {
-                s.shiftName = document.getElementById('set-shiftname').value;
-                s.baseSalary = document.getElementById('set-basic').value;
-                s.cycleStart = document.getElementById('set-startcycle').value;
-                s.cycleEnd = document.getElementById('set-endcycle').value;
-                s.mealAllowance = document.getElementById('set-meal').value;
-                if (parseNum(s.baseSalary) >= 4000) s.customHourlyRate = document.getElementById('set-customrate').value;
-            });
-            saveSettings();
-            closeModal('settings-modal');
-            refreshApp();
-        }
-
-        // --- BREAKDOWN MODAL ---
-        function openBreakdownModal(type) {
-            if(!state.lastSummary) return;
-            const sum = state.lastSummary;
-            const actSet = sum.activeSet;
-            document.getElementById('breakdown-title').innerText = type === 'ot' ? 'Perincian Kiraan OT' : 'Perincian Segala Elaun';
-            let html = '';
-
-            if (type === 'ot') {
-                html += `<div class="flex justify-between text-sm items-center border-b border-zinc-800 pb-3 mb-2"><span class="text-zinc-400">Kadar Asas/Jam:</span><span class="font-normal text-white">${formatRM(sum.baseRate)}</span></div>`;
-                const keys = Object.keys(sum.otBreakdown).sort();
-                let hasOt = false;
-                keys.forEach(k => {
-                    if (sum.otBreakdown[k].hours > 0) {
-                        hasOt = true;
-                        html += `<div class="flex justify-between items-center text-sm"><span class="text-zinc-300">${k}x (${sum.otBreakdown[k].hours} jam)</span><span class="font-normal text-amber-400">${formatRM(sum.otBreakdown[k].amount)}</span></div>`;
-                    }
-                });
-                if(!hasOt) html += `<p class="text-zinc-500 text-sm italic text-center py-2">Tiada rekod OT bulan ini.</p>`;
-                html += `<div class="flex justify-between items-center text-sm uppercase tracking-wide font-normal border-t border-zinc-800 pt-3 mt-1 text-amber-400"><span>Jumlah OT</span><span>${formatRM(sum.totalOtAmount)}</span></div>`;
-            } else {
-                html += `<h4 class="text-[10px] text-zinc-500 uppercase border-b border-zinc-800 pb-1">Elaun Syif & Meal</h4>`;
-                Object.keys(actSet.allowances).forEach(k => {
-                    const count = sum.shiftCounts[k] || 0;
-                    const rate = parseNum(actSet.allowances[k]);
-                    if (count > 0) html += `<div class="flex justify-between items-center text-sm pl-2"><span class="text-zinc-300">Syif ${k} (${count} x ${formatRM(rate)})</span><span class="font-normal text-cyan-400">${formatRM(count * rate)}</span></div>`;
-                });
-                if (sum.mealNCount > 0) {
-                    html += `<div class="flex justify-between items-center text-sm pl-2 mt-1"><span class="text-zinc-300">Elaun Meal N (${sum.mealNCount} x ${formatRM(actSet.mealAllowance)})</span><span class="font-normal text-cyan-400">${formatRM(sum.totalMealAllowance)}</span></div>`;
-                }
-
-                if (actSet.customAllowances && actSet.customAllowances.length > 0) {
-                    html += `<h4 class="text-[10px] text-zinc-500 uppercase border-b border-zinc-800 pb-1 mt-4 pt-2">Elaun Tambahan Bulanan</h4>`;
-                    actSet.customAllowances.forEach(a => {
-                        const amt = parseNum(a.amount);
-                        if (amt > 0) html += `<div class="flex justify-between items-center text-sm pl-2"><span class="text-zinc-300">${a.name}</span><span class="font-normal text-cyan-400">${formatRM(amt)}</span></div>`;
-                    });
-                }
-                
-                html += `<div class="flex justify-between items-center text-sm uppercase tracking-wide font-normal pt-3 mt-2 border-t border-zinc-800 text-cyan-400"><span>Jumlah Semua Elaun</span><span>${formatRM(sum.totalShiftAllowance)}</span></div>`;
-            }
-
-            document.getElementById('breakdown-content').innerHTML = html;
-            openModal('breakdown-modal');
-        }
-
-        // --- DAFTAR SERVICE WORKER ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
-            });
         }
     </script>
 </body>
