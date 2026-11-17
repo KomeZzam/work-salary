@@ -4,19 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Gaji & Syif Pro</title>
-    
-    <!-- PWA / WebAPK Meta Tags -->
+   <!-- Tetapan PWA / WebAPK -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a1c">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <style>
-        /* Sembunyikan scrollbar untuk paparan kemas */
+       <style>
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
         .hidden { display: none !important; }
@@ -58,7 +55,7 @@
                         <button onclick="shiftMonth(-1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👈</button>
                         <div class="text-center">
                             <h2 id="cal-month-year" class="text-sm font-normal tracking-widest uppercase text-white leading-tight"></h2>
-                            <span class="text-[10px] text-zinc-500">Kiri/Kanan untuk tukar bulan</span>
+                            <span class="text-[10px] text-zinc-500">Tapik grid untuk edit</span>
                         </div>
                         <button onclick="shiftMonth(1)" class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">👉</button>
                     </div>
@@ -67,12 +64,7 @@
                         <div>Ahad</div><div>Isnin</div><div>Selasa</div><div>Rabu</div><div>Khamis</div><div>Jumaat</div><div>Sabtu</div>
                     </div>
                     
-                    <!-- Calendar Grid with Touch Events -->
-                    <div id="calendar-grid" class="grid grid-cols-7 auto-rows-fr gap-[1px] bg-zinc-800" 
-                         ontouchstart="handleTouchStart(event)" 
-                         ontouchmove="handleTouchMove(event)" 
-                         ontouchend="handleTouchEnd(event)">
-                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 auto-rows-fr gap-[1px] bg-zinc-800"></div>
                 </div>
             </div>
 
@@ -110,14 +102,14 @@
                         </div>
                         <div onclick="openBreakdownModal('allowance')" class="bg-[#121212] rounded p-3 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition active:scale-95 group">
                             <span class="text-[9px] sm:text-[10px] text-zinc-500 uppercase flex items-center justify-between mb-1">
-                                Semua Elaun <span class="group-hover:text-emerald-400 transition">🔍</span>
+                                Semua Elaun <span class="group-hover:text-emerald-400 transition" title="👆 Klik untuk perincian">🔍</span>
                             </span>
                             <span id="sum-allowance" class="text-sm font-normal text-cyan-400"></span>
                             <div class="text-[8px] text-zinc-600 mt-1 italic leading-tight">👆 Klik untuk perincian</div>
                         </div>
                         <div onclick="openBreakdownModal('ot')" class="bg-[#121212] rounded p-3 border border-zinc-800 cursor-pointer hover:bg-zinc-800 transition active:scale-95 group">
                             <span class="text-[9px] sm:text-[10px] text-zinc-500 uppercase flex items-center justify-between mb-1">
-                                Bayaran OT <span class="group-hover:text-emerald-400 transition">🔍</span>
+                                Bayaran OT <span class="group-hover:text-emerald-400 transition" title="👆 Klik untuk perincian">🔍</span>
                             </span>
                             <span id="sum-ot" class="text-sm font-normal text-amber-400"></span>
                             <div class="text-[8px] text-zinc-600 mt-1 italic leading-tight">👆 Klik untuk perincian</div>
@@ -191,8 +183,8 @@
                 </div>
             </div>
             <div class="flex bg-zinc-900 border-t border-zinc-800">
-               <button onclick="clearDayRecord()" class="flex-1 p-4 text-rose-500 hover:bg-rose-500/10 font-normal text-sm uppercase tracking-wide transition-colors">🗑️ Padam</button>
-               <button onclick="saveDayModal()" class="flex-1 p-4 bg-emerald-600 hover:bg-emerald-500 font-normal text-sm uppercase tracking-wide transition-colors text-white">Simpan</button>
+                <button onclick="clearDayRecord()" class="flex-1 p-4 text-rose-500 hover:bg-rose-500/10 font-normal text-sm uppercase tracking-wide transition-colors border-r border-zinc-800">🗑️ Padam</button>
+                <button onclick="saveDayModal()" class="flex-1 p-4 bg-emerald-600 hover:bg-emerald-500 text-white font-normal text-sm uppercase tracking-wide transition-colors">Simpan</button>
             </div>
         </div>
     </div>
@@ -218,7 +210,7 @@
                     <input type="date" id="pat-end" class="w-full mt-1 bg-zinc-900 border border-zinc-700 rounded p-2 text-sm text-white font-normal outline-none focus:border-cyan-500" />
                 </div>
             </div>
-            <button onclick="generateShiftPattern()" class="w-full p-4 bg-cyan-600 hover:bg-cyan-500 font-normal text-sm uppercase tracking-wide flex justify-center items-center gap-2 transition-colors text-white">Jana Sekarang</button>
+            <button onclick="generateShiftPattern()" class="w-full p-4 bg-cyan-600 hover:bg-cyan-500 text-white font-normal text-sm uppercase tracking-wide flex justify-center items-center gap-2 transition-colors">Jana Sekarang</button>
         </div>
     </div>
 
@@ -262,7 +254,7 @@
                             <input type="number" id="set-basic" onchange="updateSetting('baseSalary', this.value); updateCustomRateUI();" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 mt-1 text-sm text-white font-normal outline-none focus:border-emerald-500" />
                         </div>
                         <div>
-                            <label class="text-[10px] text-zinc-400 uppercase">Kadar Sejam (RM)</label>
+                            <label class="text-[10px] text-zinc-400 uppercase">Kadar Sejam Custom</label>
                             <input type="number" step="0.01" id="set-customrate" onchange="updateSetting('customHourlyRate', this.value)" class="w-full border rounded p-2 mt-1 text-sm text-white font-normal outline-none focus:border-emerald-500" />
                         </div>
                         <div>
@@ -312,9 +304,7 @@
                     </div>
                     <div id="settings-deductions" class="space-y-2"></div>
                 </section>
-
             </div>
-            <button onclick="closeModal('settings-modal')" class="w-full p-4 bg-zinc-800 hover:bg-zinc-700 text-white font-normal uppercase tracking-widest text-sm shrink-0 transition-colors">Tutup</button>
         </div>
     </div>
 
@@ -331,28 +321,19 @@
     </div>
 
     <!-- 5. CONFIRM DIALOG -->
-    <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
         <div class="bg-[#1a1a1c] w-full max-w-xs rounded-2xl border border-zinc-700 p-5 shadow-2xl text-center">
             <div class="text-4xl mb-3">⚠️</div>
-            <h3 id="confirm-msg" class="text-white text-sm font-normal mb-6"></h3>
+            <h3 id="confirm-message" class="text-white text-sm font-normal mb-6"></h3>
             <div class="flex gap-3">
-                <button onclick="closeConfirm()" class="flex-1 p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-normal transition">Tidak</button>
-                <button onclick="execConfirm()" class="flex-1 p-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-normal transition">Ya, Padam</button>
+                <button onclick="closeConfirmModal()" class="flex-1 p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-normal transition">Tidak</button>
+                <button id="confirm-btn-yes" class="flex-1 p-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-sm font-normal transition">Ya, Teruskan</button>
             </div>
         </div>
     </div>
 
     <!-- ==================== JAVASCRIPT LOGIC ==================== -->
     <script>
-        // --- DAFTAR SERVICE WORKER (PWA) ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('PWA ServiceWorker didaftarkan'))
-                    .catch(err => console.log('PWA ServiceWorker gagal', err));
-            });
-        }
-
         const defaultMonthSettings = {
             shiftName: 'Jadual Syif Q',
             baseSalary: 3000,
@@ -384,12 +365,11 @@
             activeMonth: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`,
             records: {},
             monthlySettings: {},
-            activeSettings: null,
+            activeSettings: null, 
             lastSummary: null,
-            pendingConfirmAction: null 
+            confirmCallback: null
         };
 
-        // --- SWIPE GESTURE VARIABLES ---
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -418,38 +398,25 @@
             document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('bottom-nav').classList.remove('hidden');
 
+            setupSwipeGestures();
             renderCalendar();
             renderSalary();
         };
 
-        // --- SWIPE LOGIC ---
-        function handleTouchStart(e) {
-            touchEndX = 0;
-            touchStartX = e.changedTouches[0].screenX;
-        }
-        function handleTouchMove(e) {
-            touchEndX = e.changedTouches[0].screenX;
-        }
-        function handleTouchEnd(e) {
-            if (!touchStartX || !touchEndX) return;
-            const distance = touchStartX - touchEndX;
-            if (distance > 50) shiftMonth(1);      // Swipe Left
-            else if (distance < -50) shiftMonth(-1); // Swipe Right
+        // --- GESTURES ---
+        function setupSwipeGestures() {
+            const grid = document.getElementById('calendar-grid');
+            grid.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+            grid.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, {passive: true});
         }
 
-        // --- CONFIRM DIALOG ---
-        function openConfirm(msg, action) {
-            document.getElementById('confirm-msg').innerText = msg;
-            state.pendingConfirmAction = action;
-            openModal('confirm-modal');
-        }
-        function closeConfirm() {
-            state.pendingConfirmAction = null;
-            closeModal('confirm-modal');
-        }
-        function execConfirm() {
-            if (state.pendingConfirmAction) state.pendingConfirmAction();
-            closeConfirm();
+        function handleSwipe() {
+            const threshold = 50;
+            if (touchEndX < touchStartX - threshold) shiftMonth(1);
+            if (touchEndX > touchStartX + threshold) shiftMonth(-1);
         }
 
         // --- SETTINGS SCOPE RESOLUTION ---
@@ -469,7 +436,6 @@
             document.getElementById('settings-indicator').innerText = parseInt(state.activeMonth.split('-')[1]);
         }
 
-        // --- MODIFY & SAVE SETTINGS ---
         function modifyMonthSettings(modifierFn) {
             const cloned = JSON.parse(JSON.stringify(state.activeSettings));
             modifierFn(cloned);
@@ -479,7 +445,8 @@
             localStorage.setItem('komez_monthly_settings', JSON.stringify(state.monthlySettings));
             
             document.getElementById('header-title').innerText = state.activeSettings.shiftName || 'Jadual Syif Q';
-            renderSettingsModalLists(); // Live update
+            renderSettingsModalLists();
+            
             if (state.activeView === 'salary') renderSalary();
         }
 
@@ -499,7 +466,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert('Data berjaya dimuat turun. Simpan fail ini di tempat selamat.');
         }
 
         function importData(event) {
@@ -555,6 +521,22 @@
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function openConfirmModal(message, callback) {
+            document.getElementById('confirm-message').innerText = message;
+            state.confirmCallback = callback;
+            openModal('confirm-modal');
+        }
+        
+        function closeConfirmModal() {
+            state.confirmCallback = null;
+            closeModal('confirm-modal');
+        }
+
+        document.getElementById('confirm-btn-yes').addEventListener('click', () => {
+            if(state.confirmCallback) state.confirmCallback();
+            closeConfirmModal();
+        });
 
         // --- CALENDAR LOGIC ---
         function shiftMonth(offset) {
@@ -644,7 +626,7 @@
             
             const startC = parseNum(state.activeSettings.cycleStart) || 1;
             const endC = parseNum(state.activeSettings.cycleEnd) || 31;
-            document.getElementById('calc-cycle-label').innerText = `${startC}hb sehingga ${endC}hb (Bulan: ${cm})`;
+            document.getElementById('calc-cycle-label').innerText = `${startC}hb sehingga ${endC}hb (${state.activeMonth})`;
 
             const [yStr, mStr] = cm.split('-');
             const y = parseInt(yStr), m = parseInt(mStr) - 1;
@@ -757,7 +739,7 @@
             document.getElementById('sum-net').innerText = formatRM(net);
         }
 
-        // --- MODALS ACTION ---
+        // --- DAY MODAL ACTION ---
         function openDayModal(dateStr) {
             const fbDt = state.activeSettings.dayTypes.length > 0 ? state.activeSettings.dayTypes[0].name : 'Biasa';
             const data = state.records[dateStr] || { shift: '', dayType: fbDt, ot: '', note: '' };
@@ -799,9 +781,9 @@
             renderCalendar();
             if(state.activeView === 'salary') renderSalary();
         }
-        
+
         function clearDayRecord() {
-            openConfirm("Pasti mahu padam rekod hari ini?", () => {
+            openConfirmModal("Pasti mahu padam rekod hari ini?", () => {
                 const dateStr = document.getElementById('modal-date').value;
                 delete state.records[dateStr];
                 saveRecords();
@@ -858,19 +840,30 @@
         
         function addDayType() { modifyMonthSettings(s => s.dayTypes.push({ id: Date.now(), name: 'Baru', isTiered: false, rate: 1.5, tier1Hours: 8, tier1Rate: 2.0, tier2Rate: 3.0 })); }
         function updateDayType(id, field, val) { modifyMonthSettings(s => { const dt = s.dayTypes.find(x => x.id === id); if(dt) { dt[field] = (field === 'isTiered') ? val : val; }}); }
-        function removeDayType(id) { openConfirm("Pasti mahu padam jenis hari ini?", () => modifyMonthSettings(s => { s.dayTypes = s.dayTypes.filter(x => x.id !== id); })); }
+        function removeDayType(id) { 
+            openConfirmModal("Pasti mahu padam jenis hari ini?", () => {
+                modifyMonthSettings(s => { s.dayTypes = s.dayTypes.filter(x => x.id !== id); });
+            });
+        }
         
         function addCustomAllowance() { modifyMonthSettings(s => s.customAllowances.push({ id: Date.now(), name: '', amount: '' })); }
         function updateCustomAllowance(id, field, val) { modifyMonthSettings(s => { const a = s.customAllowances.find(x => x.id === id); if(a) a[field] = val; }); }
-        function removeCustomAllowance(id) { openConfirm("Pasti mahu padam elaun tambahan ini?", () => modifyMonthSettings(s => { s.customAllowances = s.customAllowances.filter(x => x.id !== id); })); }
+        function removeCustomAllowance(id) { 
+            openConfirmModal("Pasti mahu padam elaun tambahan ini?", () => {
+                modifyMonthSettings(s => { s.customAllowances = s.customAllowances.filter(x => x.id !== id); });
+            });
+        }
 
         function addDeduction() { modifyMonthSettings(s => s.deductions.push({ id: Date.now(), name: '', amount: '' })); }
         function updateDeduction(id, field, val) { modifyMonthSettings(s => { const d = s.deductions.find(x => x.id === id); if(d) d[field] = val; }); }
-        function removeDeduction(id) { openConfirm("Pasti mahu padam potongan ini?", () => modifyMonthSettings(s => { s.deductions = s.deductions.filter(x => x.id !== id); })); }
+        function removeDeduction(id) { 
+            openConfirmModal("Pasti mahu padam potongan ini?", () => {
+                modifyMonthSettings(s => { s.deductions = s.deductions.filter(x => x.id !== id); });
+            });
+        }
 
         function openSettings() {
             document.getElementById('settings-modal-month').innerText = `UNTUK: ${state.activeMonth}`;
-            document.getElementById('settings-warning-text').innerText = `Tetapan ini HANYA digunakan untuk kitaran gaji bulan ${state.activeMonth}. Rekod bulan lain tidak akan terjejas.`;
             
             document.getElementById('set-shiftname').value = state.activeSettings.shiftName || '';
             document.getElementById('set-basic').value = state.activeSettings.baseSalary;
@@ -1009,6 +1002,21 @@
 
             document.getElementById('breakdown-content').innerHTML = html;
             openModal('breakdown-modal');
+        }
+        
+  </script>
+        <!-- Daftar Service Worker untuk PWA Offline -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA ServiceWorker didaftarkan'))
+                    .catch(err => console.log('PWA ServiceWorker gagal', err));
+            });
+        }
+    </script>
+     
+            });
         }
     </script>
 </body>
